@@ -1,0 +1,15 @@
+{
+  "name": "d1g-bot",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "author": "dig0w",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0",
+    "fs": "^0.0.1-security"
+  }
+}
