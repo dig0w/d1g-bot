@@ -1,7 +1,8 @@
 module.exports = {
     name: 'ping',
     description: 'Gives you the bot ping',
-    options: []
+    options: [],
+    permissions: []
 }
 module.exports.run = async (client, Discord, message, args, color) => {
     return message.reply({

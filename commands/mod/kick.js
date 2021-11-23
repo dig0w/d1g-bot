@@ -11,19 +11,15 @@ module.exports = {
             type: 2,
             required: false
         }
-    ]
+    ],
+    permissions: ['HIGHER_ROLE', 'KICK_MEMBERS']
 }
 module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
     const member = message.guild.members.cache.find(member => member.id == args[1].substring(3, args[1].length-1));
     var reason = '';
-        if(args[2]){
-            for(var i = 0; i < args.length; ++i){
-                if(i > 1) reason += `${args[i]} `;
-            };
-        } else{ reason = 'No reason' };
+        if(args[2]){ reason = args.splice(2, args.length).join(' '); } else{ reason = 'No reason' };
 
     member.kick(`${reason}, by: ${message.author.tag}`).then(async () => {
-
         message.reply({
             embeds: [
                 new MessageEmbed()
@@ -33,17 +29,17 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                     .setThumbnail(member.user.displayAvatarURL())
                     .setColor(color)
             ],
-            allowedMentions: {
-                repliedUser: false
-            }
+            allowedMentions: { repliedUser: false }
         });
     }).catch(async err => {
         console.log(err);
-
-        return await message.reply({ embeds: [
-            new MessageEmbed()
-                .setDescription(`Something went wrong... \n\`${err}\``)
-                .setColor(color)
-        ]});
+        return await message.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`Something went wrong... \n\`${err}\``)
+                    .setColor(color)
+            ],
+            allowedMentions: { repliedUser: false }
+        });
     });
 }

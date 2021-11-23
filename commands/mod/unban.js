@@ -1,10 +1,10 @@
 module.exports = {
-    name: 'ban',
-    description: 'Ban a member from the server',
+    name: 'unban',
+    description: 'Unban a member from the server',
     options: [
         {
-            name: 'member',
-            type: 1,
+            name: 'member name',
+            type: 2,
             required: true
         }, {
             name: 'reason',
@@ -15,16 +15,27 @@ module.exports = {
     permissions: ['HIGHER_ROLE', 'BAN_MEMBERS']
 }
 module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
-    const member = message.guild.members.cache.find(member => member.id == args[1].substring(3, args[1].length-1));
+    const bannedMembers = await message.guild.bans.fetch();
+    const member = bannedMembers.find(bannedMember => bannedMember.user.id == args[1] || bannedMember.user.username == args[1]);
+        if(!member){
+            return message.reply({
+                embeds: [
+                    new MessageEmbed()
+                        .setDescription('> The user is not banned!')
+                        .setColor(color)
+                ],
+                allowedMentions: { repliedUser: false }
+            });
+        };
     var reason = '';
         if(args[2]){ reason = args.splice(2, args.length).join(' '); } else{ reason = 'No reason' };
 
-    member.ban({ reason: `${reason}, by: ${message.author.tag}`}).then(async () => {
+    message.guild.members.unban(member.user.id, `${reason}, by: ${message.author.tag}`).then(async () => {
         message.reply({
             embeds: [
                 new MessageEmbed()
-                    .setTitle(`🔨 Ban`)
-                    .setDescription(`The member ${member.user} has been banned!`)
+                    .setTitle(`🔨 UnBan`)
+                    .setDescription(`The member ${member.user} has been unbanned!`)
                     .setFooter(`${reason}, by: ${message.author.tag}`, message.author.displayAvatarURL())
                     .setThumbnail(member.user.displayAvatarURL())
                     .setColor(color)

@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'ban',
-    description: 'Ban a member from the server',
+    name: 'unmute',
+    description: 'Unmute a member in the server',
     options: [
         {
             name: 'member',
@@ -12,19 +12,31 @@ module.exports = {
             required: false
         }
     ],
-    permissions: ['HIGHER_ROLE', 'BAN_MEMBERS']
+    permissions: ['HIGHER_ROLE', 'MANAGE_ROLES']
 }
 module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
     const member = message.guild.members.cache.find(member => member.id == args[1].substring(3, args[1].length-1));
     var reason = '';
         if(args[2]){ reason = args.splice(2, args.length).join(' '); } else{ reason = 'No reason' };
 
-    member.ban({ reason: `${reason}, by: ${message.author.tag}`}).then(async () => {
+    const muterole = message.guild.roles.cache.find(role => role.name == 'Muted') || await message.guild.roles.create({ data: { name: 'Muted', color: '18191C', permissions: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY'] } });
+        if(!member.roles.cache.find(role => role.id == muterole.id)){
+            return message.reply({
+                embeds: [
+                    new MessageEmbed()
+                        .setDescription('> The user is already unmuted!')
+                        .setColor(color)
+                ],
+                allowedMentions: { repliedUser: false }
+            });
+        };
+
+        member.roles.remove(muterole, `${reason}, by: ${message.author.tag}`).then(async () => {
         message.reply({
             embeds: [
                 new MessageEmbed()
-                    .setTitle(`🔨 Ban`)
-                    .setDescription(`The member ${member.user} has been banned!`)
+                    .setTitle(`🤐 UnMute`)
+                    .setDescription(`The member ${member.user} has been unmuted!`)
                     .setFooter(`${reason}, by: ${message.author.tag}`, message.author.displayAvatarURL())
                     .setThumbnail(member.user.displayAvatarURL())
                     .setColor(color)
