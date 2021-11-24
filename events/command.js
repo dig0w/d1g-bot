@@ -23,9 +23,9 @@ module.exports = client => {
             var member;
 
             for(var i = 0; i < command.options.length; i++){
-                if(command.options[i].required && !args[1]) return message.reply({ embeds: [usageEmbed], allowedMentions: { repliedUser: false } });
+                if(command.options[i].required && !args[i+1]) return message.reply({ embeds: [usageEmbed], allowedMentions: { repliedUser: false } });
                 if(command.options[i].required && command.options[i].type == 1 && !message.guild.members.cache.find(member => member.id == args[i+1].substring(3, args[i+1].length-1))) return message.reply({ embeds: [usageEmbed], allowedMentions: { repliedUser: false } });
-                if(command.options[i].required && command.options[i].type == 3 && isNaN(args[i+1]) || command.options[i].required && command.options[i].type == 3 && args[i+1] < 0) return message.reply({ embeds: [usageEmbed], allowedMentions: { repliedUser: false } });
+                if(command.options[i].required && command.options[i].type == 3 && isNaN(args[i+1]) || command.options[i].required && command.options[i].type == 3 && parseInt(args[i+1]) < 0) return message.reply({ embeds: [usageEmbed], allowedMentions: { repliedUser: false } });
                 if(command.options[i].required && command.options[i].type == 1){ member = message.guild.members.cache.find(member => member.id == args[i+1].substring(3, args[i+1].length-1));};
             };
 
