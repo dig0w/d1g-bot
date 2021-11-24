@@ -11,10 +11,10 @@ module.exports = {
     permissions: ['MANAGE_CHANNELS']
 }
 module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
-    var amount = parseInt(args[1]);
+    var amount = parseInt(args[1]+1);
         if(amount > 100) amount = 100;
 
-    message.channel.bulkDelete(amount+1, true).then(async (msgs) => {
+    message.channel.bulkDelete(amount, true).then(async (msgs) => {
         message.channel.send({
             embeds: [
                 new MessageEmbed()

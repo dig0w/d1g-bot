@@ -40,13 +40,15 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 });
             };
 
+        const queueEmbed = new MessageEmbed()
+            .setDescription(`**Queue:**\n${queue.songs.map((song, id) => `\n**${id+1}** - [${song.name}](${song.url}) **\`${song.formattedDuration}\`**`)}`)
+            .setFooter(`Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? queue.repeatMode === 2 ? 'All Queue' : 'Current Song' : 'Off'} | Autoplay: ${queue.autoplay ? "On" : "Off"} | Filter: ${queue.filters.join(", ") || 'Off'}`)
+            .setColor(color);
+
+        if(queueEmbed.description.length >= 2048) queueEmbed.description = `${queueEmbed.description.substr(0, 2045)}...`;
+
         message.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription(`**Queue:**\n${queue.songs.map((song, id) => `\n**${id+1}** - [${song.name}](${song.url}) **\`${song.formattedDuration}\`**`)}`)
-                    .setFooter(`Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? queue.repeatMode === 2 ? 'All Queue' : 'Current Song' : 'Off'} | Autoplay: ${queue.autoplay ? "On" : "Off"} | Filter: ${queue.filters.join(", ") || 'Off'}`)
-                    .setColor(color)
-            ],
+            embeds: [queueEmbed],
             allowedMentions: { repliedUser: false }
         });
     } catch (err){
