@@ -1,6 +1,7 @@
 module.exports = {
     name: 'mute',
     description: 'Mute a member in the server',
+    aliases: [],
     options: [
         {
             name: 'member',

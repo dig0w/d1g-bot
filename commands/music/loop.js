@@ -1,6 +1,7 @@
 module.exports = {
     name: 'loop',
     description: 'Loop the queue',
+    aliases: [],
     options: [],
     permissions: []
 }

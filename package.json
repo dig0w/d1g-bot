@@ -1,6 +1,7 @@
 {
   "name": "d1g-bot",
   "version": "0.0.1",
+  "description": "",
   "main": "index.js",
   "author": "dig0w",
   "scripts": {
@@ -23,16 +24,5 @@
   },
   "devDependencies": {
     "node": "^16.13.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Dig0w/d1g-bot.git"
-  },
-  "keywords": [],
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Dig0w/d1g-bot/issues"
-  },
-  "homepage": "https://github.com/Dig0w/d1g-bot#readme",
-  "description": ""
+  }
 }

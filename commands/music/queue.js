@@ -1,6 +1,7 @@
 module.exports = {
     name: 'queue',
     description: 'Resume a song',
+    aliases: [],
     options: [],
     permissions: []
 }

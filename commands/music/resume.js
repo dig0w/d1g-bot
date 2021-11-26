@@ -1,6 +1,7 @@
 module.exports = {
     name: 'resume',
     description: 'Resume a song',
+    aliases: [],
     options: [],
     permissions: []
 }

@@ -1,6 +1,7 @@
 module.exports = {
     name: 'volume',
     description: 'Change the volume of the song in the voice channel',
+    aliases: [],
     options: [
         {
             name: 'volume',

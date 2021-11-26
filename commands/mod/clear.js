@@ -1,6 +1,7 @@
 module.exports = {
     name: 'clear',
     description: 'Clear the messages from a channel',
+    aliases: [],
     options: [
         {
             name: 'amount',

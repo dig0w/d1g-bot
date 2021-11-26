@@ -1,6 +1,7 @@
 module.exports = {
     name: 'autoplay',
     description: 'Autoplay the queue',
+    aliases: [],
     options: [],
     permissions: []
 }

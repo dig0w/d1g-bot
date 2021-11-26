@@ -1,6 +1,7 @@
 module.exports = {
     name: 'stop',
     description: 'Stops the queue',
+    aliases: [],
     options: [],
     permissions: []
 }

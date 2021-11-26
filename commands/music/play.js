@@ -1,6 +1,7 @@
 module.exports = {
     name: 'play',
     description: 'Play a song in the voice channel',
+    aliases: ['p'],
     options: [
         {
             name: 'song',

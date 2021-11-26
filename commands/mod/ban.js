@@ -1,6 +1,7 @@
 module.exports = {
     name: 'ban',
     description: 'Ban a member from the server',
+    aliases: [],
     options: [
         {
             name: 'member',

@@ -1,6 +1,7 @@
 module.exports = {
     name: 'unmute',
     description: 'Unmute a member in the server',
+    aliases: [],
     options: [
         {
             name: 'member',
