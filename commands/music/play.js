@@ -51,6 +51,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             voiceChannel: voiceChannel,
             connection: undefined,
             songs: [],
+            playing: false,
             volume: 50,
             npSong: 0
         };
@@ -124,6 +125,10 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
         if(queue){
             queue.songs = [...queue.songs, ...songs];
+
+            if(!queue.playing){
+                await play(queue.songs[queue.npSong]);
+            };
 
             if(songs.length > 1 && playlistInfo){
                 await message.reply({ embeds: [
@@ -230,9 +235,11 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         var npMsg;
 
         const player = createAudioPlayer();
-            player.play(createAudioResource(stream));
+            player.play(createAudioResource(stream, { inlineVolume: true }));
 
             player.on(AudioPlayerStatus.Playing, async () => {
+                queue.playing = true;
+
                 var songDurantion = song.duration;
                 var min = Math.floor((songDurantion / 60) << 0);
                 var sec = Math.floor((songDurantion) % 60);
@@ -248,6 +255,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             });
             player.on(AudioPlayerStatus.Idle, async () => {
                 if(npMsg && npMsg.deletable) npMsg.delete();
+                queue.playing = false;
 
                 for(var i = 0; i < queue.songs.length; i++){
                     if(queue.songs.length >= i+1 && queue.songs[i] == song){ queue.npSong = i+1; play(queue.songs[i+1]); };
@@ -267,6 +275,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                         .setColor(color)
                 ]});
             });
+            player._state.resource.volume.setVolume(queue.volume/100);
 
         queue.connection.subscribe(player);
         queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => { await queue.connection.destroy(); client.queue.delete(message.guild.id); });
