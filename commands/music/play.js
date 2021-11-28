@@ -52,6 +52,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             connection: undefined,
             songs: [],
             volume: 50,
+            npSong: 0
         };
         var songs = [];
         var playlistInfo;
@@ -249,7 +250,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 if(npMsg && npMsg.deletable) npMsg.delete();
 
                 for(var i = 0; i < queue.songs.length; i++){
-                    if(queue.songs.length >= i+1 && queue.songs[i] == song){ play(queue.songs[i+1]); };
+                    if(queue.songs.length >= i+1 && queue.songs[i] == song){ queue.npSong = i+1; play(queue.songs[i+1]); };
                 };
             });
             player.on('error', async err => {
