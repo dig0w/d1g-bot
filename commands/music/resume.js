@@ -29,7 +29,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         };
 
     try{
-        const queue = await client.distube.getQueue(voiceChannel);
+        const queue = client.queue.get(message.guild.id);
             if(!queue){
                 return message.reply({
                     embeds: [
@@ -41,11 +41,12 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 });
             };
 
-        await queue.resume(voiceChannel);
+        queue.connection._state.subscription.player.unpause();
+
         message.reply({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`▶️ Song has been resumed`)
+                    .setDescription(`▶️ ${message.member} resumed the song`)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }
@@ -55,7 +56,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         return await message.reply({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`Something went wrong... \n\`${err}\``)
+                    .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }

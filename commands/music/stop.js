@@ -29,7 +29,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         };
 
     try{
-        const queue = await client.distube.getQueue(voiceChannel);
+        const queue = client.queue.get(message.guild.id);
             if(!queue){
                 return message.reply({
                     embeds: [
@@ -41,11 +41,13 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 });
             };
 
-        await queue.stop(voiceChannel);
+        await queue.connection.destroy();
+        client.queue.delete(message.guild.id);
+
         message.reply({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`⏹️ The queue has been stopped`)
+                    .setDescription(`⏹️ ${message.member} stopped the queue`)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }
@@ -55,7 +57,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         return await message.reply({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`Something went wrong... \n\`${err}\``)
+                    .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }

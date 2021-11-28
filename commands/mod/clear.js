@@ -23,13 +23,13 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }
-        }).then(async (msg) => setTimeout(async () => await msg.delete(), 4500));
+        }).then(async (msg) => setTimeout(async () => { try{ await msg.delete()} catch(err){ return }; }, 4500));
     }).catch(async err => {
         console.log(err);
         return await message.channel.send({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`Something went wrong... \n\`${err}\``)
+                    .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }

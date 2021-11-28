@@ -37,7 +37,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         return await message.reply({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`Something went wrong... \n\`${err}\``)
+                    .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }

@@ -29,7 +29,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         };
 
     try{
-        const queue = await client.distube.getQueue(voiceChannel);
+        const queue = client.queue.get(message.guild.id);
             if(!queue){
                 return message.reply({
                     embeds: [
@@ -41,23 +41,77 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 });
             };
 
-        const queueEmbed = new MessageEmbed()
-            .setDescription(`**Queue:**\n${queue.songs.map((song, id) => `\n**${id+1}** - [${song.name}](${song.url}) **\`${song.formattedDuration}\`**`)}`)
-            .setFooter(`Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? queue.repeatMode === 2 ? 'All Queue' : 'Current Song' : 'Off'} | Autoplay: ${queue.autoplay ? "On" : "Off"} | Filter: ${queue.filters.join(", ") || 'Off'}`)
-            .setColor(color);
+        var currentPage = 0;
+        const embeds = genQueuePage(queue);
 
-        if(queueEmbed.description.length >= 2048) queueEmbed.description = `${queueEmbed.description.substr(0, 2045)}...`;
-
-        message.reply({
-            embeds: [queueEmbed],
+        const queueMsg = await message.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}`)
+                    .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}%`)
+                    .setColor(color)
+            ],
             allowedMentions: { repliedUser: false }
         });
+
+        queueMsg.react('⬅️');
+        queueMsg.react('➡️');
+        const collector = queueMsg.createReactionCollector();
+        collector.on('collect', async (reaction, user) => {
+            if(user.id == client.user.id) return;
+            if(user.bot && user.id != client.user.id) return reaction.users.remove(user);
+
+            reaction.users.remove(user);
+
+            if(reaction._emoji.name == '➡️'){
+                if(currentPage < embeds.length-1){
+                    currentPage++;
+                    queueMsg.edit({
+                        embeds: [
+                            new MessageEmbed()
+                                .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}`)
+                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}%`)
+                                .setColor(color)
+                        ]
+                    });
+                };
+            } else if(reaction._emoji.name == '⬅️'){
+                if(currentPage != 0){
+                    --currentPage;
+                    queueMsg.edit({
+                        embeds: [
+                            new MessageEmbed()
+                                .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}`)
+                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}%`)
+                                .setColor(color)
+                        ]
+                    });
+                };
+            };
+        });
+
+        function genQueuePage(queue){
+            const embeds = [];
+            var k = 10;
+
+            for(var i = 0; i < queue.songs.length; i += 10){
+                const page = queue.songs.slice(i, k);
+                var j = i;
+                k += 10;
+
+                const queueMap = page.map((song) => `**${++j}** - [${song.title}](${song.url})`).join('\n');
+
+                embeds.push(queueMap);
+            };
+
+            return embeds;
+        }
     } catch (err){
         console.log(err);
         return await message.reply({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`Something went wrong... \n\`${err}\``)
+                    .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }
