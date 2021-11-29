@@ -53,7 +53,8 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             songs: [],
             playing: false,
             volume: 50,
-            npSong: 0
+            npSong: 0,
+            loop: 0
         };
         var songs = [];
         var playlistInfo;
@@ -257,8 +258,17 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 if(npMsg && npMsg.deletable) npMsg.delete();
                 queue.playing = false;
 
-                for(var i = 0; i < queue.songs.length; i++){
-                    if(queue.songs.length >= i+1 && queue.songs[i] == song){ queue.npSong = i+1; play(queue.songs[i+1]); };
+                if(queue.loop == 1){
+                    for(var i = 0; i < queue.songs.length; i++){
+                        if(queue.songs[queue.songs.length-1] == song){ queue.npSong = 0; play(queue.songs[0]); }
+                        else if(queue.songs[i] == song){ queue.npSong = i+1; play(queue.songs[i+1]); };
+                    };
+                } else if(queue.loop == 2){
+                    play(song);
+                } else{
+                    for(var i = 0; i < queue.songs.length; i++){
+                        if(queue.songs.length >= i+1 && queue.songs[i] == song){ queue.npSong = i+1; play(queue.songs[i+1]); };
+                    };
                 };
             });
             player.on('error', async err => {

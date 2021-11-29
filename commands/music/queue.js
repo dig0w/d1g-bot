@@ -48,6 +48,11 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             if(sec <= 9) sec = `0${sec}`;
         songDurantion = `${min}:${sec}`;
 
+        var loop;
+        if(queue.loop == 0){ loop = 'Off' }
+        else if(queue.loop == 1){ loop = 'Queue' }
+        else if(queue.loop == 2){ loop = 'Song' };
+
         var currentPage = 0;
         const embeds = genQueuePage(queue);
 
@@ -55,7 +60,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             embeds: [
                 new MessageEmbed()
                     .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${npSong.title}](${npSong.url}) **\`${songDurantion}\`**`)
-                    .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}%`)
+                    .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }
@@ -77,7 +82,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                         embeds: [
                             new MessageEmbed()
                                 .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${npSong.title}](${npSong.url}) **\`${songDurantion}\`**`)
-                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}%`)
+                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
                                 .setColor(color)
                         ]
                     });
@@ -89,7 +94,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                         embeds: [
                             new MessageEmbed()
                                 .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${npSong.title}](${npSong.url}) **\`${songDurantion}\`**`)
-                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}%`)
+                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
                                 .setColor(color)
                         ]
                     });
