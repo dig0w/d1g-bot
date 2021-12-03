@@ -292,6 +292,6 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             player._state.resource.volume.setVolume(queue.volume/100);
 
         queue.connection.subscribe(player);
-        queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => { await queue.connection.destroy(); client.queue.delete(message.guild.id); });
+        queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => { client.queue.delete(message.guild.id); });
     };
 }
