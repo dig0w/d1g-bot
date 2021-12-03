@@ -41,7 +41,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 });
             };
 
-        const npSong = queue.songs[queue.npSong];
+        const npSong = queue.songs.find(song => song == queue.npSong);
         var songDurantion = npSong.duration;
         var min = Math.floor((songDurantion / 60) << 0);
         var sec = Math.floor((songDurantion) % 60);

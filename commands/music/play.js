@@ -54,6 +54,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             playing: false,
             volume: 50,
             npSong: 0,
+            skipto: 0,
             loop: 0
         };
         var songs = [];
@@ -215,22 +216,10 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         };
 
         var stream;
-        var i = 0;
-        try{
-            if(ytdl.validateURL(song.url)){
-                stream = await ytdl(song.url, { type: 'opus', filter: 'audioonly', highWaterMark: 100 });
-            } else if(scPattern.test(url)){
-                stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
-            };
-        } catch(err){
-            i++;
-            if(i < 4){ 
-                if(ytdl.validateURL(song.url)){
-                    stream = await ytdl(song.url, { type: 'opus', filter: 'audioonly', highWaterMark: 100 });
-                } else if(scPattern.test(url)){
-                    stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
-                };
-            };
+        if(ytdl.validateURL(song.url)){
+            stream = await ytdl(song.url, { type: 'opus', filter: 'audioonly', highWaterMark: 100 });
+        } else if(scPattern.test(url)){
+            stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
         };
 
         var npMsg;
@@ -240,6 +229,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
             player.on(AudioPlayerStatus.Playing, async () => {
                 queue.playing = true;
+                queue.npSong = song;
 
                 var songDurantion = song.duration;
                 var min = Math.floor((songDurantion / 60) << 0);
@@ -258,24 +248,38 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 if(npMsg && npMsg.deletable) npMsg.delete();
                 queue.playing = false;
 
+                if(queue.skipto > 0){ return play(queue.songs[queue.skipto]); };
+
                 if(queue.loop == 1){
                     for(var i = 0; i < queue.songs.length; i++){
-                        if(queue.songs[queue.songs.length-1] == song){ queue.npSong = 0; play(queue.songs[0]); }
-                        else if(queue.songs[i] == song){ queue.npSong = i+1; play(queue.songs[i+1]); };
+                        if(queue.songs[queue.songs.length-1] == song){ play(queue.songs[0]); }
+                        else if(queue.songs[i] == song){ play(queue.songs[i+1]); };
                     };
                 } else if(queue.loop == 2){
                     play(song);
                 } else{
                     for(var i = 0; i < queue.songs.length; i++){
-                        if(queue.songs.length >= i+1 && queue.songs[i] == song){ queue.npSong = i+1; play(queue.songs[i+1]); };
+                        if(queue.songs.length >= i+1 && queue.songs[i] == song){ play(queue.songs[i+1]); };
                     };
                 };
             });
             player.on('error', async err => {
                 if(npMsg && npMsg.deletable) npMsg.delete();
+                queue.playing = false;
 
-                for(var i = 0; i < queue.songs.length; i++){
-                    if(queue.songs.length >= i+1 && queue.songs[i] == song){ play(queue.songs[i+1]); };
+                if(queue.skipto > 0){ return play(queue.songs[queue.skipto]); };
+
+                if(queue.loop == 1){
+                    for(var i = 0; i < queue.songs.length; i++){
+                        if(queue.songs[queue.songs.length-1] == song){ play(queue.songs[0]); }
+                        else if(queue.songs[i] == song){ play(queue.songs[i+1]); };
+                    };
+                } else if(queue.loop == 2){
+                    play(song);
+                } else{
+                    for(var i = 0; i < queue.songs.length; i++){
+                        if(queue.songs.length >= i+1 && queue.songs[i] == song){ play(queue.songs[i+1]); };
+                    };
                 };
 
                 console.log(err);
