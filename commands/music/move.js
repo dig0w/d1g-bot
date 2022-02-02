@@ -54,9 +54,9 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         const moveSong = parseInt(args[1]);
         const newPos = parseInt(args[2]);
 
-        const song = queue.songs[parseInt(moveSong)-1];
-        queue.songs.splice(parseInt(moveSong)-1, 1);
-        queue.songs.splice(parseInt(newPos)-1, 0, song);
+        const song = queue.songs[parseInt(moveSong) - 1];
+        queue.songs.splice(parseInt(moveSong) - 1, 1);
+        queue.songs.splice(parseInt(newPos) - 1, 0, song);
 
         message.reply({
             embeds: [
