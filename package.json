@@ -16,10 +16,9 @@
     "ffmpeg-static": "^4.4.0",
     "fs": "^0.0.1-security",
     "libsodium-wrappers": "^0.7.9",
+    "play-dl": "^1.8.4",
     "soundcloud-downloader": "^1.0.0",
-    "ytdl-core": "^4.9.1",
-    "ytpl": "^2.2.3",
-    "ytsr": "^3.5.3"
+    "spotify-url-info": "^2.2.5"
   },
   "devDependencies": {
     "node": "^16.13.0"
