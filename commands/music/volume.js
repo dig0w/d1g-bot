@@ -1,7 +1,7 @@
 module.exports = {
     name: 'volume',
     description: 'Change the volume',
-    aliases: [],
+    aliases: ['v', 'vol'],
     options: [
         {
             name: 'volume',

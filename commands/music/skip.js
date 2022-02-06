@@ -1,7 +1,7 @@
 module.exports = {
     name: 'skip',
     description: 'Skip to the next song in the queue',
-    aliases: [],
+    aliases: ['next'],
     options: [],
     permissions: []
 }

@@ -1,7 +1,7 @@
 module.exports = {
     name: 'remove',
     description: 'Remove a song from the queue',
-    aliases: [],
+    aliases: ['r'],
     options: [
         {
             name: 'song position',

@@ -1,7 +1,6 @@
 require('dotenv').config();
 
-const express = require('express');
-const app = express();
+const app = require('express')();
 app.get('/', (req, res) => {
     const ping = new Date();
     ping.setHours(ping.getHours()-3);
