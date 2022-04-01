@@ -6,127 +6,112 @@ module.exports = {
     permissions: []
 }
 module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
-    const voiceChannel = message.member.voice.channel;
-        if(!voiceChannel){
+        if(!message.member.voice.channel){
+            return message.reply({
+                embeds: [
+                new MessageEmbed()
+                    .setDescription(`> You need to be connected to voice channel`)
+                    .setColor(color)
+                ],
+                allowedMentions: { repliedUser: false }
+            });
+        };
+        if(message.guild.me.voice.channel && message.member.voice.channel.id != message.guild.me.voice.channel.id){
             return message.reply({
                 embeds: [
                     new MessageEmbed()
-                        .setDescription(`> You need to be connected to voice channel!`)
+                        .setDescription(`> I am already playing music in other voice channel`)
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
             });
         };
-        if(message.guild.me.voice.channel && voiceChannel.id != message.guild.me.voice.channel.id){
+    const queue = client.distube.getQueue(message);
+        if(!queue){
             return message.reply({
                 embeds: [
                     new MessageEmbed()
-                        .setDescription(`> I\'m already playing music in other voice channel!`)
+                        .setDescription(`> There is nothing in the queue right now`)
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
             });
         };
 
-    try{
-        const queue = client.queue.get(message.guild.id);
-            if(!queue){
-                return message.reply({
+    var npSong;
+    for(var i = 0; i < queue.songs.length; i++){
+        npSong = queue.songs[0];
+    };
+
+    var loop;
+    if(queue.loop == 0){ loop = 'Off' }
+    else if(queue.loop == 1){ loop = 'Queue' }
+    else if(queue.loop == 2){ loop = 'Song' };
+
+    var currentPage = 0;
+    const embeds = genQueuePage(queue);
+
+    const queueMsg = await message.reply({
+        embeds: [
+            new MessageEmbed()
+                .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
+                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? (queue.repeatMode === 2 ? 'All Queue' : 'This Song') : 'Off'} | Filter: ${queue.filters.join(', ') || 'Off'}`)
+                .setColor(color)
+        ],
+        allowedMentions: { repliedUser: false }
+    });
+
+    queueMsg.react('⬅️');
+    queueMsg.react('➡️');
+    const collector = queueMsg.createReactionCollector();
+    collector.on('collect', async (reaction, user) => {
+        if(user.id == client.user.id) return;
+        if(user.bot && user.id != client.user.id) return reaction.users.remove(user);
+
+        reaction.users.remove(user);
+
+        if(reaction._emoji.name == '➡️'){
+            if(currentPage < embeds.length-1){
+                currentPage++;
+                queueMsg.edit({
                     embeds: [
                         new MessageEmbed()
-                            .setDescription(`> There\'s no queue!`)
+                            .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
+                            .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
                             .setColor(color)
-                    ],
-                    allowedMentions: { repliedUser: false }
+                    ]
                 });
             };
-
-        const npSong = queue.songs.find(song => song == queue.npSong);
-        var songDurantion = npSong.duration;
-        var min = Math.floor((songDurantion / 60) << 0);
-        var sec = Math.floor((songDurantion) % 60);
-            if(sec <= 9) sec = `0${sec}`;
-        songDurantion = `${min}:${sec}`;
-
-        var loop;
-        if(queue.loop == 0){ loop = 'Off' }
-        else if(queue.loop == 1){ loop = 'Queue' }
-        else if(queue.loop == 2){ loop = 'Song' };
-
-        var currentPage = 0;
-        const embeds = genQueuePage(queue);
-
-        const queueMsg = await message.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${npSong.title}](${npSong.url}) **\`${songDurantion}\`**`)
-                    .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
-                    .setColor(color)
-            ],
-            allowedMentions: { repliedUser: false }
-        });
-
-        queueMsg.react('⬅️');
-        queueMsg.react('➡️');
-        const collector = queueMsg.createReactionCollector();
-        collector.on('collect', async (reaction, user) => {
-            if(user.id == client.user.id) return;
-            if(user.bot && user.id != client.user.id) return reaction.users.remove(user);
-
-            reaction.users.remove(user);
-
-            if(reaction._emoji.name == '➡️'){
-                if(currentPage < embeds.length-1){
-                    currentPage++;
-                    queueMsg.edit({
-                        embeds: [
-                            new MessageEmbed()
-                                .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${npSong.title}](${npSong.url}) **\`${songDurantion}\`**`)
-                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
-                                .setColor(color)
-                        ]
-                    });
-                };
-            } else if(reaction._emoji.name == '⬅️'){
-                if(currentPage != 0){
-                    --currentPage;
-                    queueMsg.edit({
-                        embeds: [
-                            new MessageEmbed()
-                                .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${npSong.title}](${npSong.url}) **\`${songDurantion}\`**`)
-                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
-                                .setColor(color)
-                        ]
-                    });
-                };
+        } else if(reaction._emoji.name == '⬅️'){
+            if(currentPage != 0){
+                --currentPage;
+                queueMsg.edit({
+                    embeds: [
+                        new MessageEmbed()
+                            .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
+                            .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
+                            .setColor(color)
+                    ]
+                });
             };
-        });
+        };
+    });
 
-        function genQueuePage(queue){
-            const embeds = [];
-            var k = 10;
 
-            for(var i = 0; i < queue.songs.length; i += 10){
-                const page = queue.songs.slice(i, k);
-                var j = i;
-                k += 10;
+    function genQueuePage(queue){
+        const embeds = [];
+        var k = 10;
 
-                const queueMap = page.map((song) => `**${++j}** - [${song.title}](${song.url})`).join('\n');
+        for(var i = 0; i < queue.songs.length; i += 10){
+            const page = queue.songs.slice(i, k);
+            var j = i;
+            k += 10;
 
-                embeds.push(queueMap);
-            };
+            const queueMap = page.map((song) => `**${++j}** - [${song.name}](${song.url})`).join('\n');
 
-            return embeds;
-        }
-    } catch (err){
-        console.log(err);
-        return await message.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription(`Something went wrong... \n> \`${err}\``)
-                    .setColor(color)
-            ],
-            allowedMentions: { repliedUser: false }
-        });
+            embeds.push(queueMap);
+        };
+
+        return embeds;
     };
 }

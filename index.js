@@ -14,6 +14,20 @@ const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS,Disco
 
 client.queue = new Map();
 
+const { DisTube } = require('distube');
+const { SpotifyPlugin } = require('@distube/spotify')
+const { SoundCloudPlugin } = require('@distube/soundcloud')
+const { YtDlpPlugin } = require('@distube/yt-dlp')
+client.distube = new DisTube(client, {
+    plugins: [
+        new SpotifyPlugin({
+          emitEventsAfterFetching: true
+        }),
+        new SoundCloudPlugin(),
+        new YtDlpPlugin()
+      ],
+});
+
 client.commands = new Discord.Collection();
 require('./handler.js')(client);
 
