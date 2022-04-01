@@ -7,7 +7,7 @@ module.exports = client => {
             queue.textChannel.send({ embeds: [
                 new MessageEmbed()
                     .setDescription(`▶️ Playing: [${song.name}](${song.url}) **\`${song.formattedDuration}\`**`)
-                    .setFooter(`By: ${song.user.tag}`)
+                    .setFooter({ text: `By: ${song.user.tag}` })
                     .setColor(color)
             ]})
         )
@@ -15,7 +15,7 @@ module.exports = client => {
             queue.textChannel.send({ embeds: [
                 new MessageEmbed()
                     .setDescription(`↪️ Queued: [${song.name}](${song.url}) **\`${song.formattedDuration}\`**`)
-                    .setFooter(`By: ${song.user.tag}`)
+                    .setFooter({ text: `By: ${song.user.tag}` })
                     .setColor(color)
             ]})
         )
@@ -23,7 +23,7 @@ module.exports = client => {
             queue.textChannel.send({ embeds: [
                 new MessageEmbed()
                     .setDescription(`↪️ Queued: [${playlist.name}](${playlist.url}) with **\`${playlist.songs.length}\`** songs`)
-                    .setFooter(`By: ${playlist.user.tag}`)
+                    .setFooter({ text: `By: ${song.user.tag}` })
                     .setColor(color)
             ]})
         )

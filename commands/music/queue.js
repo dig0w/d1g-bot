@@ -55,7 +55,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         embeds: [
             new MessageEmbed()
                 .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
-                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? (queue.repeatMode === 2 ? 'All Queue' : 'This Song') : 'Off'} | Filter: ${queue.filters.join(', ') || 'Off'}`)
+                .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? (queue.repeatMode === 2 ? 'All Queue' : 'This Song') : 'Off'} | Filter: ${queue.filters.join(', ') || 'Off'}` })
                 .setColor(color)
         ],
         allowedMentions: { repliedUser: false }
@@ -77,7 +77,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                     embeds: [
                         new MessageEmbed()
                             .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
-                            .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
+                            .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? (queue.repeatMode === 2 ? 'All Queue' : 'This Song') : 'Off'} | Filter: ${queue.filters.join(', ') || 'Off'}` })
                             .setColor(color)
                     ]
                 });
@@ -89,7 +89,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                     embeds: [
                         new MessageEmbed()
                             .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
-                            .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
+                            .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? (queue.repeatMode === 2 ? 'All Queue' : 'This Song') : 'Off'} | Filter: ${queue.filters.join(', ') || 'Off'}` })
                             .setColor(color)
                     ]
                 });

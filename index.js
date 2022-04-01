@@ -25,7 +25,8 @@ client.distube = new DisTube(client, {
         }),
         new SoundCloudPlugin(),
         new YtDlpPlugin()
-      ],
+    ],
+    youtubeDL: false
 });
 
 client.commands = new Discord.Collection();
