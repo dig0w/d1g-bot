@@ -1,26 +1,28 @@
 {
-  "name": "d1g-bot",
-  "version": "0.0.1",
-  "description": "",
+  "name": "d1g0",
+  "version": "0.0.0",
+  "description": "A Discord bot",
   "main": "index.js",
-  "author": "dig0w",
   "scripts": {
-    "start": "node ."
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "dig0w",
+  "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.7.0",
-    "@discordjs/voice": "^0.8.0",
-    "@distube/soundcloud": "^1.1.0",
-    "@distube/spotify": "^1.2.1",
-    "@distube/yt-dlp": "^1.0.2",
-    "discord.js": "^13.6.0",
-    "distube": "^3.3.3",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
+    "@discordjs/builders": "^0.15.0",
+    "@discordjs/opus": "^0.8.0",
+    "@discordjs/rest": "^0.5.0",
+    "@discordjs/voice": "^0.10.0",
+    "discord-api-types": "^0.36.2",
+    "discord.js": "^13.8.1",
+    "dotenv": "^16.0.1",
+    "ffmpeg-static": "^5.0.2",
     "libsodium-wrappers": "^0.7.10",
-    "opusscript": "^0.0.8"
-  },
-  "devDependencies": {
-    "node": "^16.13.0"
+    "ms": "^2.1.3",
+    "soundcloud-downloader": "^1.0.0",
+    "youtubei": "^1.0.0-rc.3",
+    "youtubei.js": "^1.4.3",
+    "ytdl-core": "^4.11.0"
   }
 }

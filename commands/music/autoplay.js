@@ -1,9 +1,11 @@
 module.exports = {
-    name: 'pause',
-    description: 'Pause a song',
-    aliases: []
+    name: 'autoplay',
+    description: 'Auto plays related content',
+    aliases: ['ap']
 }
 module.exports.run = async (client, { MessageEmbed }, interaction) => {
+    const youtubei = require('youtubei');
+    const youtube = new youtubei.Client();
     const color = interaction.guild.me.displayHexColor;
 
     const voiceChannel = interaction.member.voice.channel;
@@ -16,10 +18,10 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
 
     const queue = client.queue.get(interaction.guildId);
         if(!queue){
-            return await interaction.reply({ content: '> There is no song to pause', ephemeral: true, allowedMentions: { repliedUser: false } });
+            return await interaction.reply({ content: '> There is no queue', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
 
-    queue.connection._state.subscription.player.pause();
+    queue.autoplay = true;
 
     await interaction.reply({
         embeds: [

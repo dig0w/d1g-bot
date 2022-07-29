@@ -1,5 +1,5 @@
 module.exports = client => {
-    const fs = require('fs');
+    const fs = require('node:fs');
 
     const ccategories = fs.readdirSync('./commands/');
     for(const category of ccategories){

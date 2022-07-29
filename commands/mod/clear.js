@@ -1,38 +1,30 @@
 module.exports = {
     name: 'clear',
     description: 'Clear the messages from a channel',
-    aliases: [],
     options: [
         {
             name: 'amount',
-            type: 3,
+            description: 'Amount to clear',
+            type: 10,
+            min_value: 0,
+            max_value: 100,
             required: true
         }
     ],
-    permissions: ['MANAGE_CHANNELS']
+    default_member_permissions: '8192',
+    aliases: []
 }
-module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
-    var amount = parseInt(args[1]) + 1;
+module.exports.run = async (client, discord, interaction) => {
+    var amount = interaction.options.get('amount').value;
         if(amount > 100) amount = 100;
 
-    message.channel.bulkDelete(amount, true).then(async (msgs) => {
-        message.channel.send({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription(`I deleted **\`${msgs.size - 1}\`** messages!`)
-                    .setColor(color)
-            ],
-            allowedMentions: { repliedUser: false }
-        }).then(async (msg) => setTimeout(async () => { try{ await msg.delete()} catch(err){ return }; }, 4500));
-    }).catch(async err => {
-        console.log(err);
-        return await message.channel.send({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription(`Something went wrong... \n> \`${err}\``)
-                    .setColor(color)
-            ],
-            allowedMentions: { repliedUser: false }
-        });
+    interaction.channel.bulkDelete(amount, true).then(async (msgs) => {
+        try{
+            await interaction.reply(`> I deleted **\`${msgs.size}\`** messages!`)
+            .then(async () => setTimeout(async () => { try{ await interaction.deleteReply(); } catch(err){ return; }; }, 4500));
+        } catch(err){
+            await interaction.channel.send(`> I deleted **\`${msgs.size}\`** messages!`)
+            .then(async msg => setTimeout(async () => { try{ await msg.delete(); } catch(err){ return; }; }, 4500));
+        };
     });
 }

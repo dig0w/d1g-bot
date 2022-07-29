@@ -8,28 +8,14 @@ app.get('/', (req, res) => {
 });
 app.listen(process.env.PORT);
 
-const Discord = require('discord.js');
+const discord = require('discord.js');
 
-const client = new Discord.Client({ intents: [Discord.Intents.FLAGS.GUILDS,Discord.Intents.FLAGS.GUILD_MEMBERS,Discord.Intents.FLAGS.GUILD_BANS,Discord.Intents.FLAGS.GUILD_INVITES,Discord.Intents.FLAGS.GUILD_VOICE_STATES,Discord.Intents.FLAGS.GUILD_PRESENCES,Discord.Intents.FLAGS.GUILD_MESSAGES,Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
+const client = new discord.Client({ intents: [discord.Intents.FLAGS.GUILDS, discord.Intents.FLAGS.GUILD_MEMBERS, discord.Intents.FLAGS.GUILD_BANS, discord.Intents.FLAGS.GUILD_INVITES, discord.Intents.FLAGS.GUILD_VOICE_STATES, discord.Intents.FLAGS.GUILD_PRESENCES, discord.Intents.FLAGS.GUILD_MESSAGES, discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 
 client.queue = new Map();
 
-const { DisTube } = require('distube');
-const { SpotifyPlugin } = require('@distube/spotify')
-const { SoundCloudPlugin } = require('@distube/soundcloud')
-const { YtDlpPlugin } = require('@distube/yt-dlp')
-client.distube = new DisTube(client, {
-    plugins: [
-        new SpotifyPlugin({
-          emitEventsAfterFetching: true
-        }),
-        new SoundCloudPlugin(),
-        new YtDlpPlugin()
-    ],
-    youtubeDL: false
-});
+client.commands = new discord.Collection();
 
-client.commands = new Discord.Collection();
 require('./handler.js')(client);
 
-client.login(process.env.token);
+client.login(process.env.clientToken);

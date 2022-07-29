@@ -1,7 +1,20 @@
 module.exports = {
-    name: 'pause',
-    description: 'Pause a song',
-    aliases: []
+    name: 'move',
+    description: 'Move a song in the queue',
+    options: [
+        {
+            name: 'position',
+            description: 'Song to move in the queue',
+            type: 10,
+            required: true
+        }, {
+            name: 'new',
+            description: 'Were to move the song',
+            type: 10,
+            required: true
+        }
+    ],
+    aliases: ['mv']
 }
 module.exports.run = async (client, { MessageEmbed }, interaction) => {
     const color = interaction.guild.me.displayHexColor;
@@ -16,15 +29,20 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
 
     const queue = client.queue.get(interaction.guildId);
         if(!queue){
-            return await interaction.reply({ content: '> There is no song to pause', ephemeral: true, allowedMentions: { repliedUser: false } });
+            return await interaction.reply({ content: '> There is no queue', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
 
-    queue.connection._state.subscription.player.pause();
+    var pos = interaction.options.get('position').value;
+    var npos = interaction.options.get('new').value;
+
+    const song = queue.songs[pos-1];
+    queue.songs.splice(pos-1, 1);
+    queue.songs.splice(npos-1, 0, song);
 
     await interaction.reply({
         embeds: [
             new MessageEmbed()
-                .setDescription(`⏸️ ${interaction.member} paused the song`)
+                .setDescription(`↕️ ${interaction.member} moved [${song.title}](${song.url}) to position **\`${npos}\`**`)
                 .setColor(color)
         ], allowedMentions: { repliedUser: false }
     });

@@ -1,60 +1,45 @@
 module.exports = {
     name: 'volume',
     description: 'Change the volume',
-    aliases: ['v', 'vol'],
     options: [
         {
             name: 'volume',
-            type: 3,
+            description: 'Change the volume',
+            type: 10,
+            min_value: 0,
+            max_value: 100,
             required: true
         }
     ],
-    permissions: []
+    aliases: ['v', 'vol']
 }
-module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
-        if(!message.member.voice.channel){
-            return message.reply({
-                embeds: [
-                new MessageEmbed()
-                    .setDescription(`> You need to be connected to voice channel`)
-                    .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
+module.exports.run = async (client, { MessageEmbed }, interaction) => {
+    const color = interaction.guild.me.displayHexColor;
+
+    const voiceChannel = interaction.member.voice.channel;
+        if(!voiceChannel){
+            return await interaction.reply({ content: '> You need to be connected to voice channel', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
-        if(message.guild.me.voice.channel && message.member.voice.channel.id != message.guild.me.voice.channel.id){
-            return message.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setDescription(`> I am already playing music in other voice channel`)
-                        .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
-        };
-    const queue = client.distube.getQueue(message);
-        if(!queue){
-            return message.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setDescription(`> There is nothing in the queue right now`)
-                        .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
+        if(interaction.guild.me.voice.channel && voiceChannel.id != interaction.guild.me.voice.channel.id){
+            return await interaction.reply({ content: '> I\'m already playing music in other voice channel', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
 
-    var volume = parseInt(args[1]);
+    const queue = client.queue.get(interaction.guildId);
+        if(!queue){
+            return await interaction.reply({ content: '> There is no queue', ephemeral: true, allowedMentions: { repliedUser: false } });
+        };
+
+    var volume = interaction.options.get('volume').value;
         if(volume > 100) volume = 100;
 
-    queue.setVolume(volume);
+    queue.connection._state.subscription.player._state.resource.volume.setVolume(volume/100);
+    queue.volume = volume;
 
-    message.reply({
+    await interaction.reply({
         embeds: [
             new MessageEmbed()
-                .setDescription(`🔉 ${message.member} changed the volume to: **\`${volume}%\`**`)
+                .setDescription(`🔉 ${interaction.member} changed the volume to: **\`${volume}%\`**`)
                 .setColor(color)
-        ],
-        allowedMentions: { repliedUser: false }
+        ], allowedMentions: { repliedUser: false }
     });
 }

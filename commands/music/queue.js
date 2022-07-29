@@ -1,47 +1,30 @@
 module.exports = {
     name: 'queue',
-    description: 'Resume a song',
-    aliases: [],
-    options: [],
-    permissions: []
+    description: 'Displays the queue',
+    aliases: []
 }
-module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
-        if(!message.member.voice.channel){
-            return message.reply({
-                embeds: [
-                new MessageEmbed()
-                    .setDescription(`> You need to be connected to voice channel`)
-                    .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
+module.exports.run = async (client, { MessageEmbed }, interaction) => {
+    const color = interaction.guild.me.displayHexColor;
+
+    const voiceChannel = interaction.member.voice.channel;
+        if(!voiceChannel){
+            return await interaction.reply({ content: '> You need to be connected to voice channel', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
-        if(message.guild.me.voice.channel && message.member.voice.channel.id != message.guild.me.voice.channel.id){
-            return message.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setDescription(`> I am already playing music in other voice channel`)
-                        .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
-        };
-    const queue = client.distube.getQueue(message);
-        if(!queue){
-            return message.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setDescription(`> There is nothing in the queue right now`)
-                        .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
+        if(interaction.guild.me.voice.channel && voiceChannel.id != interaction.guild.me.voice.channel.id){
+            return await interaction.reply({ content: '> I\'m already playing music in other voice channel', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
 
-    var npSong;
-    for(var i = 0; i < queue.songs.length; i++){
-        npSong = queue.songs[0];
-    };
+        const queue = client.queue.get(interaction.guildId);
+            if(!queue){
+                return await interaction.reply({ content: '> There is no queue', ephemeral: true, allowedMentions: { repliedUser: false } });
+            };
+
+        console.log(queue.songIndex);
+        const song = queue.songs[queue.songIndex];
+        var songDurantion = song.duration;
+        var min = Math.floor((songDurantion / 60) << 0);
+        var sec = Math.floor((songDurantion) % 60).toString().padStart(2, '0');
+        songDurantion = `${min}:${sec}`;
 
     var loop;
     if(queue.loop == 0){ loop = 'Off' }
@@ -51,15 +34,14 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
     var currentPage = 0;
     const embeds = genQueuePage(queue);
 
-    const queueMsg = await message.reply({
-        embeds: [
-            new MessageEmbed()
-                .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
-                .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? (queue.repeatMode === 2 ? 'All Queue' : 'This Song') : 'Off'} | Filter: ${queue.filters.join(', ') || 'Off'}` })
-                .setColor(color)
-        ],
-        allowedMentions: { repliedUser: false }
-    });
+        const queueMsg = await interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
+                    .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
+                    .setColor(color)
+            ], fetchReply: true, allowedMentions: { repliedUser: false }
+        });
 
     queueMsg.react('⬅️');
     queueMsg.react('➡️');
@@ -70,31 +52,45 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
         reaction.users.remove(user);
 
-        if(reaction._emoji.name == '➡️'){
-            if(currentPage < embeds.length-1){
-                currentPage++;
-                queueMsg.edit({
-                    embeds: [
-                        new MessageEmbed()
-                            .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
-                            .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? (queue.repeatMode === 2 ? 'All Queue' : 'This Song') : 'Off'} | Filter: ${queue.filters.join(', ') || 'Off'}` })
-                            .setColor(color)
-                    ]
-                });
+            if(reaction._emoji.name == '➡️'){
+                if(currentPage < embeds.length-1){
+                    currentPage++;
+
+                    const msg = {
+                        embeds: [
+                            new MessageEmbed()
+                                .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
+                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
+                                .setColor(color)
+                        ], allowedMentions: { repliedUser: false }
+                    };
+
+                    try{
+                        await interaction.editReply(msg);
+                    } catch(err){
+                        queueMsg.edit(msg)
+                    };
+                };
+            } else if(reaction._emoji.name == '⬅️'){
+                if(currentPage != 0){
+                    --currentPage;
+
+                    const msg = {
+                        embeds: [
+                            new MessageEmbed()
+                                .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
+                                .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
+                                .setColor(color)
+                        ], allowedMentions: { repliedUser: false }
+                    };
+
+                    try{
+                        await interaction.editReply(msg);
+                    } catch(err){
+                        queueMsg.edit(msg)
+                    };
+                };
             };
-        } else if(reaction._emoji.name == '⬅️'){
-            if(currentPage != 0){
-                --currentPage;
-                queueMsg.edit({
-                    embeds: [
-                        new MessageEmbed()
-                            .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Playing: [${npSong.name}](${npSong.url}) **\`${npSong.formattedDuration}\`**`)
-                            .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${queue.repeatMode ? (queue.repeatMode === 2 ? 'All Queue' : 'This Song') : 'Off'} | Filter: ${queue.filters.join(', ') || 'Off'}` })
-                            .setColor(color)
-                    ]
-                });
-            };
-        };
     });
 
 
@@ -109,9 +105,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
             const queueMap = page.map((song) => `**${++j}** - [${song.name}](${song.url})`).join('\n');
 
-            embeds.push(queueMap);
-        };
-
-        return embeds;
+            return embeds;
+        }
     };
 }

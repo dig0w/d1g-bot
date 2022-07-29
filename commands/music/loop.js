@@ -1,71 +1,55 @@
 module.exports = {
     name: 'loop',
     description: 'Loop the queue or the current song',
-    aliases: [],
-    options: [
-        {
-            name: 'loop',
-            type: 2,
-            required: true
-        }
-    ],
-    permissions: []
+    options: [{
+            name: 'type',
+            description: 'Type to loop',
+            type: 10,
+            required: true,
+            choices: [{
+                name: 'queue',
+                value: 1
+            }, {
+                name: 'song',
+                value: 2
+            }, {
+                name: 'off',
+                value: 0
+            }]
+    }],
+    aliases: []
 }
-module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
-        if(!message.member.voice.channel){
-            return message.reply({
-                embeds: [
-                new MessageEmbed()
-                    .setDescription(`> You need to be connected to voice channel`)
-                    .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
+module.exports.run = async (client, { MessageEmbed }, interaction) => {
+    const color = interaction.guild.me.displayHexColor;
+
+    const voiceChannel = interaction.member.voice.channel;
+        if(!voiceChannel){
+            return await interaction.reply({ content: '> You need to be connected to voice channel', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
-        if(message.guild.me.voice.channel && message.member.voice.channel.id != message.guild.me.voice.channel.id){
-            return message.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setDescription(`> I am already playing music in other voice channel`)
-                        .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
+        if(interaction.guild.me.voice.channel && voiceChannel.id != interaction.guild.me.voice.channel.id){
+            return await interaction.reply({ content: '> I\'m already playing music in other voice channel', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
-    const queue = client.distube.getQueue(message);
+
+    const queue = client.queue.get(interaction.guildId);
         if(!queue){
-            return message.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setDescription(`> There is nothing in the queue right now`)
-                        .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false }
-            });
+            return await interaction.reply({ content: '> There is no queue', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
 
-        var mode = null;
-        switch(args[1]){
-            case 'off':
-                mode = 0
-              break;
-            case 'song':
-                mode = 1
-              break;
-            case 'queue':
-                mode = 2
-              break;
+    var desc;
+    var loop = interaction.options.get('type').value;
+        if(loop == 0){
+            queue.loop = 0; desc = `🔁 ${interaction.member} **disabled** the loop`;
+        } else if(loop == 1){
+            queue.loop = 1; desc = `🔁 ${interaction.member} looped the **queue**`;
+        } else if(loop == 2){
+            queue.loop = 2; desc = `🔂 ${interaction.member} looped the **song**`;
         };
 
-        mode = queue.setRepeatMode(mode);
-        mode = mode ? (mode === 2 ? `🔁 ${message.member} looped the **queue**` : `🔂 ${message.member} looped the **song**`) : `🔁 ${message.member} **disabled** the loop`;
-
-        message.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription(`${mode}`)
-                    .setColor(color)
-            ],
-            allowedMentions: { repliedUser: false }
-        });
+    await interaction.reply({
+        embeds: [
+            new MessageEmbed()
+                .setDescription(desc)
+                .setColor(color)
+        ], allowedMentions: { repliedUser: false }
+    });
 }
