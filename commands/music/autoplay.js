@@ -4,8 +4,6 @@ module.exports = {
     aliases: ['ap']
 }
 module.exports.run = async (client, { MessageEmbed }, interaction) => {
-    const youtubei = require('youtubei');
-    const youtube = new youtubei.Client();
     const color = interaction.guild.me.displayHexColor;
 
     const voiceChannel = interaction.member.voice.channel;
