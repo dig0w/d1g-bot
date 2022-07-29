@@ -26,7 +26,7 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
     await interaction.reply({
         embeds: [
             new MessageEmbed()
-                .setDescription(`⏸️ ${interaction.member} paused the song`)
+                .setDescription(`▶️ ${interaction.member} enabled auto player`)
                 .setColor(color)
         ], allowedMentions: { repliedUser: false }
     });
