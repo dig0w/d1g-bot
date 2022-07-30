@@ -94,6 +94,7 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
 
 
     function genQueuePage(queue){
+        var embeds = [];
         var k = 10;
 
         for(var i = 0; i < queue.songs.length; i += 10){
