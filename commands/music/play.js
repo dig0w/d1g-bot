@@ -196,10 +196,9 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
         };
     };
 
+    var idled;
     async function play(song){
         const queue = client.queue.get(interaction.guildId);
-
-        var idled;
 
         const player = createAudioPlayer();
 
@@ -216,7 +215,7 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
         player.on(AudioPlayerStatus.Playing, async () => {
             queue.playing = true;
 
-            if(idled){ clearInterval(idled); };
+            if(idled){ clearTimeout(idled); };
 
             var songDurantion = song.duration;
             var min = Math.floor((songDurantion / 60) << 0);
@@ -237,11 +236,9 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
             queue.playing = false;
             queue.songIndex = queue.songIndex+1;
 
-            idled = setInterval(() => {
+            idled = setTimeout(() => {
                 queue.connection.destroy();
                 client.queue.delete(interaction.guildId);
-
-                clearInterval(idled);
             }, 5*60*1000);
 
             if(queue.autoplay){

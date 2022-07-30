@@ -102,7 +102,7 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
             var j = i;
             k += 10;
 
-            const queueMap = page.map((song) => `**${++j}** - [${song.name}](${song.url})`).join('\n');
+            const queueMap = page.map((song) => `**${++j}** - [${song.title}](${song.url})`).join('\n');
 
             embeds.push(queueMap);
         };
