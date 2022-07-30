@@ -28,7 +28,11 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
         };
 
     if(interaction.options.get('position')){
-        queue.songIndex = interaction.options.get('position').value-2;
+        if(queue.songs.length < interaction.options.get('position').value){
+            return await interaction.reply({ content: '> There is no song to skip to', ephemeral: true, allowedMentions: { repliedUser: false } });
+        };
+
+        queue.songIndex = interaction.options.get('position').value-1;
 
         queue.connection._state.subscription.player.stop();
 

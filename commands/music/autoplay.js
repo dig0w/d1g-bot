@@ -19,13 +19,25 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
             return await interaction.reply({ content: '> There is no queue', ephemeral: true, allowedMentions: { repliedUser: false } });
         };
 
-    queue.autoplay = true;
+    if(!queue.autoplay){
+        queue.autoplay = true;
 
-    await interaction.reply({
-        embeds: [
-            new MessageEmbed()
-                .setDescription(`▶️ ${interaction.member} enabled auto player`)
-                .setColor(color)
-        ], allowedMentions: { repliedUser: false }
-    });
+        await interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`▶️ ${interaction.member} enabled the autoplayer`)
+                    .setColor(color)
+            ], allowedMentions: { repliedUser: false }
+        });
+    } else{
+        queue.autoplay = false;
+
+        await interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`▶️ ${interaction.member} disabled the autoplayer`)
+                    .setColor(color)
+            ], allowedMentions: { repliedUser: false }
+        });
+    }
 }

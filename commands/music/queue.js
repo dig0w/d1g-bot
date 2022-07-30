@@ -19,7 +19,6 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
                 return await interaction.reply({ content: '> There is no queue', ephemeral: true, allowedMentions: { repliedUser: false } });
             };
 
-        console.log(queue.songIndex);
         const song = queue.songs[queue.songIndex];
         var songDurantion = song.duration;
         var min = Math.floor((songDurantion / 60) << 0);
@@ -38,7 +37,7 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
             embeds: [
                 new MessageEmbed()
                     .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
-                    .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}`)
+                    .setFooter(`Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop} | AutoPlay: ${queue.autoplay ? 'On' : 'Off'}`)
                     .setColor(color)
             ], fetchReply: true, allowedMentions: { repliedUser: false }
         });
@@ -95,7 +94,6 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
 
 
     function genQueuePage(queue){
-        const embeds = [];
         var k = 10;
 
         for(var i = 0; i < queue.songs.length; i += 10){
@@ -105,7 +103,9 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
 
             const queueMap = page.map((song) => `**${++j}** - [${song.name}](${song.url})`).join('\n');
 
-            return embeds;
-        }
+            embeds.push(queueMap);
+        };
+
+        return embeds;
     };
 }

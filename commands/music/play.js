@@ -111,7 +111,7 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
         };
     // Youtube Search
     } else {
-        const search = await youtube.search(link, { type: 'video', sort: 'view' });
+        const search = await youtube.search(link, { type: 'video', sort: 'view', duration: 'medium' });
         song = {
             id: search.items[0].id,
             url: `https://www.youtube.com/watch?v=${search.items[0].id}`,
@@ -245,15 +245,15 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
             }, 5*60*1000);
 
             if(queue.autoplay){
-                if(queue.songs[queue.songs.length-1] == song){
-                    const videoInfo = await youtubei.getVideo(queue.songs[queue.songIndex-1].id)
-
+                if(queue.songs[queue.songs.length-1] == song && song.url.match(/^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/gi)){
+                    var videoInfo = await youtube.getVideo(queue.songs[queue.songIndex-1].id);
+                    videoInfo = videoInfo.related.items.find(v => v.duration <= 20*60);
                     queue.songs.push({
-                        id: videoInfo.related.items[0].id,
-                        url: `https://www.youtube.com/watch?v=${videoInfo.related.items[0].id}`,
-                        title: videoInfo.related.items[0].title,
-                        duration: videoInfo.related.items[0].duration,
-                        author: { user: { tag: 'Auto Play' } }
+                        id: videoInfo.id,
+                        url: `https://www.youtube.com/watch?v=${videoInfo.id}`,
+                        title: videoInfo.title,
+                        duration: videoInfo.duration,
+                        author: { user: { tag: 'AutoPlayer' } }
                     });
 
                     play(queue.songs[queue.songIndex]);

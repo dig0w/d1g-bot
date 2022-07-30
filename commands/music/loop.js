@@ -4,17 +4,17 @@ module.exports = {
     options: [{
             name: 'type',
             description: 'Type to loop',
-            type: 10,
+            type: 3,
             required: true,
             choices: [{
                 name: 'queue',
-                value: 1
+                value: 'queue'
             }, {
                 name: 'song',
-                value: 2
+                value: 'song'
             }, {
                 name: 'off',
-                value: 0
+                value: 'off'
             }]
     }],
     aliases: []
@@ -37,11 +37,11 @@ module.exports.run = async (client, { MessageEmbed }, interaction) => {
 
     var desc;
     var loop = interaction.options.get('type').value;
-        if(loop == 0){
+        if(loop == 'off'){
             queue.loop = 0; desc = `🔁 ${interaction.member} **disabled** the loop`;
-        } else if(loop == 1){
+        } else if(loop == 'queue'){
             queue.loop = 1; desc = `🔁 ${interaction.member} looped the **queue**`;
-        } else if(loop == 2){
+        } else if(loop == 'song'){
             queue.loop = 2; desc = `🔂 ${interaction.member} looped the **song**`;
         };
 

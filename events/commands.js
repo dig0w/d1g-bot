@@ -27,9 +27,9 @@ module.exports = client => {
         var options = new Map;
         if(command.options){
             for(var i = 0; i < command.options.length; i++){
-                if(command.options.length <= i+1){
+                if(command.options.length <= i+1 && args.slice([i+1]).join(' ') != ''){
                     options.set( command.options[i].name, { name: command.options[i].name, type: command.options[i].type, value: args.slice([i+1]).join(' ') } );
-                } else{
+                } else if(args[i+1]){
                     options.set( command.options[i].name, { name: command.options[i].name, type: command.options[i].type, value: args[i+1] } );
                 };
             };
