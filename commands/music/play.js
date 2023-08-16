@@ -11,27 +11,26 @@ module.exports = {
     ],
     permissions: []
 }
-module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
+module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require('@discordjs/voice');
     const playdl = require('play-dl');
     const scdl = require('soundcloud-downloader').default;
-    const spdl = require('spotify-url-info');
-  
+
     const voiceChannel = message.member.voice.channel;
       if(!voiceChannel){
         return message.reply({
           embeds: [
-            new MessageEmbed()
+            new EmbedBuilder()
               .setDescription(`> You need to be connected to voice channel!`)
               .setColor(color)
             ],
           allowedMentions: { repliedUser: false }
         });
       };
-      if(message.guild.me.voice.channel && voiceChannel.id != message.guild.me.voice.channel.id){
+      if(message.guild.members.me.voice.channel && voiceChannel.id != message.guild.members.me.voice.channel.id){
         return message.reply({
           embeds: [
-              new MessageEmbed()
+              new EmbedBuilder()
                   .setDescription(`> I\'m already playing music in other voice channel!`)
                   .setColor(color)
           ],
@@ -40,13 +39,10 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
       };
     const url = args.splice(1, args.length).join(' ');
 
-    const ytPlaylistPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/(playlist\?list=)([^#\&\?]*).*/gi;
-    const ytPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/gi;
-    const scPlaylistPattern = /^https?:\/\/(soundcloud\.com)\/.+?\/(sets)\/(.*)$/;
-    const scPattern = /^https?:\/\/(soundcloud\.com)\/(.*)$/;
-    const spPattern = /^https?:\/\/(open\.spotify\.com)\/(track)\/(.*)$/;
-    const spPlaylistPattern = /^https?:\/\/(open\.spotify\.com)\/(playlist)\/(.*)$/;
-    const spAlbumPattern = /^https?:\/\/(open\.spotify\.com)\/(album)\/(.*)$/;
+    const ytPlaylistPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/(playlist\?list=)([^#\&\?]*).*/g;
+    const ytPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/g;
+    const scPlaylistPattern = /^https?:\/\/(soundcloud\.com)\/.+?\/(sets)\/(.*)$/g;
+    const scPattern = /^https?:\/\/(soundcloud\.com)\/(.*)$/g;
 
     try{
         const queue = client.queue.get(message.guild.id);
@@ -118,40 +114,6 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 duration: trackInfo.duration/1000,
                 author: message.member
             });
-        } else if(spPattern.test(url)){
-            const trackInfo = await spdl.getPreview(url);
-            const trackInfoDur = await spdl.getData(url);
-
-            songs.push({
-                title: `${trackInfo.artist} - ${trackInfo.title}`,
-                url: trackInfo.link,
-                duration: trackInfoDur.duration_ms/1000,
-                author: message.member
-            });
-        } else if(spPlaylistPattern.test(url) || spAlbumPattern.test(url)){
-            const plInfo = await spdl.getPreview(url);
-            const plTracks = await spdl.getTracks(url);
-
-            playlistInfo = {
-                title: `${plInfo.artist} - ${plInfo.title}`,
-                url: plInfo.link,
-                tracks: plTracks.length,
-                author: message.member
-            };
-
-            for(var i = 0; i < plTracks.length; i++){
-                const trackInfo = plTracks[i];
-
-                var artists = []
-                  for(var l = 0; l < trackInfo.artists.length; l++){ artists.push(trackInfo.artists[l].name); };
-
-                songs.push({
-                    title: `${artists.join(' & ')} - ${trackInfo.name}`,
-                    url: trackInfo.external_urls.spotify,
-                    duration: trackInfo.duration_ms/1000,
-                    author: message.member
-                });
-            };
         } else {
             const videoInfo = await playdl.search(url, { limit: 1});
             songs.push({
@@ -171,9 +133,9 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
             if(songs.length > 1 && playlistInfo){
                 await message.reply({ embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
-                            .setFooter(`By: ${playlistInfo.author.user.tag}`)
+                            .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }
@@ -189,9 +151,9 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                     songDurantion = `${min}:${sec}`;
             
                     await message.reply({ embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                                 .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
-                                .setFooter(`By: ${song.author.user.tag}`)
+                                .setFooter({ text: `By: ${song.author.user.tag}` })
                                 .setColor(color)
                         ],
                         allowedMentions: { repliedUser: false }
@@ -204,9 +166,9 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
             if(songs.length > 1 && playlistInfo){
                 await message.reply({ embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
-                            .setFooter(`By: ${playlistInfo.author.user.tag}`)
+                            .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }
@@ -231,7 +193,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
         return await message.reply({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
@@ -254,22 +216,19 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
         const player = createAudioPlayer();
         var stream;
+        console.log(ytPattern.test(song.url), scPattern.test(song.url), song.url);
         if(ytPattern.test(song.url)){
-            stream = await playdl.stream(song.url);
+            console.log('yt');
+            stream = await playdl.stream(song.url, { discordPlayerCompatibility: true });
 
             player.play(createAudioResource(stream.stream, { inputType : stream.type, inlineVolume: true }));
         } else if(scPattern.test(song.url)){
+            console.log('sc');
             stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
 
             player.play(createAudioResource(stream, { inlineVolume: true }));
-        } else if(spPattern.test(song.url)){
-            const songInfo = await playdl.search(song.title, { limit: 1});
-                if(!songInfo) return;
-
-            stream = await playdl.stream(songInfo[0].url);
-
-            player.play(createAudioResource(stream.stream, { inputType : stream.type, inlineVolume: true }));
         };
+        console.log(player, stream);
 
         var npMsg;
             player.on(AudioPlayerStatus.Playing, async () => {
@@ -283,13 +242,14 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 songDurantion = `${min}:${sec}`;
     
                 npMsg = await message.channel.send({ embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setDescription(`▶️ Now Playing: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
-                        .setFooter(`By: ${song.author.user.tag}`)
+                        .setFooter({ text: `By: ${song.author.user.tag}` })
                         .setColor(color)
                 ]});
             });
             player.on(AudioPlayerStatus.Idle, async () => {
+                console.log('idle', player);
                 if(npMsg && npMsg.deletable) npMsg.delete();
                 queue.playing = false;
 
@@ -330,7 +290,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
                 };
 
                 return await message.channel.send({ embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setDescription(`Something went wrong... \n> \`${err}\``)
                         .setColor(color)
                 ]});

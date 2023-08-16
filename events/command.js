@@ -2,22 +2,23 @@ module.exports = client => {
     client.on('messageCreate', message => {
         const Discord = require('discord.js');
 
-        if(!message.content.startsWith(process.env.prefix) || message.author.bot) return;
+        if(!message.content.startsWith(process.env['prefix']) || message.author.bot) return;
 
-        var args = message.content.substring(process.env.prefix.length).split(' ').filter(arg => arg != '');
+        var args = message.content.substring(process.env['prefix'].length).split(' ').filter(arg => arg != '');
 
         const command = client.commands.get(args[0]) || client.commands.find(a => a.aliases.includes(args[0]));
             if(!command) return;
 
-        var color = message.guild.me.displayHexColor;
-            if(message.guild.me.displayHexColor == '#000000') color = '#AD8EFB';
-
+//        var color = message.guild.me.displayHexColor;
+//            if(message.guild.me.displayHexColor == '#000000') color = '#AD8EFB';
+          var color = '#AD8EFB';
+      
         // Options
             var options = '';
             command.options.forEach(option => { if(option.required){ options += `**\`${option.name}\`**`; } else{ options += `\`${option.name}\`` } });
 
-            const usageEmbed = new Discord.MessageEmbed()
-                .setDescription(`**Wrong Usage**\n\n> Use: \`${process.env.prefix}${command.name}\`${options}`)
+            const usageEmbed = new Discord.EmbedBuilder()
+                .setDescription(`**Wrong Usage**\n\n> Use: \`${process.env['prefix']}${command.name}\`${options}`)
                 .setColor(color);
 
             var member;
@@ -74,7 +75,7 @@ module.exports = client => {
                 if(member && permission == 'HIGHER_ROLE' && message.member.roles.highest.rawPosition < member.roles.highest.rawPosition){
                     return message.reply({
                         embeds: [
-                            new Discord.MessageEmbed()
+                            new Discord.EmbedBuilder()
                                 .setDescription(`**Missing Permissions**\n\n> The member has a higher or equal role to yours.`)
                                 .setColor(color)
                         ],
@@ -82,10 +83,10 @@ module.exports = client => {
                             repliedUser: false
                         }
                     });
-                } else if(permission != 'HIGHER_ROLE' && !message.member.permissions.has(Discord.Permissions.FLAGS[permission])){
+                } else if(permission != 'HIGHER_ROLE' && !message.member.permissions.has(Discord.PermissionsBitField.Flags[permission])){
                     return message.reply({
                         embeds: [
-                            new Discord.MessageEmbed()
+                            new Discord.EmbedBuilder()
                                 .setDescription(`**Missing Permissions**\n\n> You don't have the required permissions.\n> **\`${permission}\`**`)
                                 .setColor(color)
                         ],

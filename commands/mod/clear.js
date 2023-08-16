@@ -11,14 +11,14 @@ module.exports = {
     ],
     permissions: ['MANAGE_CHANNELS']
 }
-module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
+module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     var amount = parseInt(args[1]) + 1;
         if(amount > 100) amount = 100;
 
     message.channel.bulkDelete(amount, true).then(async (msgs) => {
         message.channel.send({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setDescription(`I deleted **\`${msgs.size - 1}\`** messages!`)
                     .setColor(color)
             ],
@@ -28,7 +28,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         console.log(err);
         return await message.channel.send({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],

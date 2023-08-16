@@ -5,22 +5,22 @@ module.exports = {
     options: [],
     permissions: []
 }
-module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
+module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     const voiceChannel = message.member.voice.channel;
         if(!voiceChannel){
             return message.reply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setDescription(`> You need to be connected to voice channel!`)
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
             });
         };
-        if(message.guild.me.voice.channel && voiceChannel.id != message.guild.me.voice.channel.id){
+        if(message.guild.members.me.voice.channel && voiceChannel.id != message.guild.members.me.voice.channel.id){
             return message.reply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setDescription(`> I\'m already playing music in other voice channel!`)
                         .setColor(color)
                 ],
@@ -33,7 +33,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
             if(!queue){
                 return message.reply({
                     embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setDescription(`> There\'s no queue to stop!`)
                             .setColor(color)
                     ],
@@ -46,7 +46,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
 
         message.reply({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setDescription(`⏹️ ${message.member} stopped the queue`)
                     .setColor(color)
             ],
@@ -56,7 +56,7 @@ module.exports.run = async (client, { MessageEmbed }, message, args, color) => {
         console.log(err);
         return await message.reply({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
