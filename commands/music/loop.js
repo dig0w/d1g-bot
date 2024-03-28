@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'loop',
-    description: 'Loop the queue or the current song',
+    name: "loop",
+    description: "Loop the queue or the current song",
     aliases: [],
     options: [],
     permissions: []
@@ -11,7 +11,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> You need to be connected to voice channel!`)
+                        .setDescription("> You need to be connected to voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -21,7 +21,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> I\'m already playing music in other voice channel!`)
+                        .setDescription("> I\'m already playing music in other voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -34,7 +34,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 return message.reply({
                     embeds: [
                         new EmbedBuilder()
-                            .setDescription(`> There\'s no queue to loop!`)
+                            .setDescription("> There\'s no queue to loop!")
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }
@@ -50,7 +50,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         message.reply({
             embeds: [
                 new EmbedBuilder()
-                    .setDescription(`${desc}`)
+                    .setDescription(desc)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }

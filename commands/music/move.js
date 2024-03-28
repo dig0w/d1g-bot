@@ -1,14 +1,14 @@
 module.exports = {
-    name: 'move',
-    description: 'Move a song in the queue',
+    name: "move",
+    description: "Move a song in the queue",
     aliases: [],
     options: [
         {
-            name: 'song position',
+            name: "song position",
             type: 3,
             required: true
         }, {
-            name: 'new position',
+            name: "new position",
             type: 3,
             required: true
         }
@@ -21,7 +21,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> You need to be connected to voice channel!`)
+                        .setDescription("> You need to be connected to voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -31,7 +31,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> I\'m already playing music in other voice channel!`)
+                        .setDescription("> I\'m already playing music in other voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -44,7 +44,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 return message.reply({
                     embeds: [
                         new EmbedBuilder()
-                            .setDescription(`> There\'s no songs to move!`)
+                            .setDescription("> There\'s no songs to move!")
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }

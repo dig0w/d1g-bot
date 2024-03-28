@@ -1,7 +1,7 @@
 module.exports = {
-    name: 'skip',
-    description: 'Skip to the next song in the queue',
-    aliases: ['next'],
+    name: "skip",
+    description: "Skip to the next song in the queue",
+    aliases: ["next"],
     options: [],
     permissions: []
 }
@@ -11,7 +11,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> You need to be connected to voice channel!`)
+                        .setDescription("> You need to be connected to voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -21,7 +21,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> I\'m already playing music in other voice channel!`)
+                        .setDescription("> I\'m already playing music in other voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -34,7 +34,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 return message.reply({
                     embeds: [
                         new EmbedBuilder()
-                            .setDescription(`> There\'s no song to skip!`)
+                            .setDescription("> There\'s no song to skip!")
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }

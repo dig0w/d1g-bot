@@ -1,10 +1,10 @@
 module.exports = {
-    name: 'play',
-    description: 'Play a song in the voice channel',
-    aliases: ['p'],
+    name: "play",
+    description: "Play a song in the voice channel",
+    aliases: ["p"],
     options: [
         {
-            name: 'song',
+            name: "song",
             type: 2,
             required: true
         }
@@ -12,16 +12,16 @@ module.exports = {
     permissions: []
 }
 module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
-    const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require('@discordjs/voice');
-    const playdl = require('play-dl');
-    const scdl = require('soundcloud-downloader').default;
+    const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require("@discordjs/voice");
+    const playdl = require("play-dl");
+    const scdl = require("soundcloud-downloader").default;
 
     const voiceChannel = message.member.voice.channel;
       if(!voiceChannel){
         return message.reply({
           embeds: [
             new EmbedBuilder()
-              .setDescription(`> You need to be connected to voice channel!`)
+              .setDescription("> You need to be connected to voice channel!")
               .setColor(color)
             ],
           allowedMentions: { repliedUser: false }
@@ -31,13 +31,13 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         return message.reply({
           embeds: [
               new EmbedBuilder()
-                  .setDescription(`> I\'m already playing music in other voice channel!`)
+                  .setDescription("> I\'m already playing music in other voice channel!")
                   .setColor(color)
           ],
           allowedMentions: { repliedUser: false }
         });
       };
-    const url = args.splice(1, args.length).join(' ');
+    const url = args.splice(1, args.length).join(" ");
 
     const ytPlaylistPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/(playlist\?list=)([^#\&\?]*).*/g;
     const ytPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/g;
@@ -205,28 +205,34 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         const queue = client.queue.get(message.guild.id);
 
         if(!song){
-            setTimeout(async () => {
-                if(song) return;
-                const connection = getVoiceConnection(message.guild.id);
-                if(connection){ connection.destroy(); };
-                return client.queue.delete(message.guild.id);
-            }, 2.5 * 60000);
-            return;
+            const connection = getVoiceConnection(message.guild.id);
+            if(connection){ connection.destroy(); };
+            return client.queue.delete(message.guild.id);
         };
 
         const player = createAudioPlayer();
         var stream;
         console.log(ytPattern.test(song.url), scPattern.test(song.url), song.url);
-        if(ytPattern.test(song.url)){
-            console.log('yt');
-            stream = await playdl.stream(song.url, { discordPlayerCompatibility: true });
+        try {
+            if(song.url.match(ytPattern) && song.url.match(ytPattern).length > 0){
+                stream = await playdl.stream(song.url, { discordPlayerCompatibility: true });
+    
+                player.play(createAudioResource(stream.stream, { inputType : stream.type, inlineVolume: true }));
+            } else if(song.url.match(scPattern) && song.url.match(scPattern).length > 0){
+                stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
+    
+                player.play(createAudioResource(stream, { inlineVolume: true }));
+            } else {
+                console.log(song.url.match(ytPattern).length > 0, song.url.match(scPattern) && song.url.match(scPattern).length > 0, song.url);
+            };
+        } catch (err) {
+            console.log(err);
 
-            player.play(createAudioResource(stream.stream, { inputType : stream.type, inlineVolume: true }));
-        } else if(scPattern.test(song.url)){
-            console.log('sc');
-            stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
-
-            player.play(createAudioResource(stream, { inlineVolume: true }));
+            return await message.channel.send({ embeds: [
+                new EmbedBuilder()
+                    .setDescription(`Something went wrong... \n> \`${err}\``)
+                    .setColor(color)
+            ]});
         };
         console.log(player, stream);
 
@@ -249,7 +255,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 ]});
             });
             player.on(AudioPlayerStatus.Idle, async () => {
-                console.log('idle', player);
+                console.log("idle", player);
                 if(npMsg && npMsg.deletable) npMsg.delete();
                 queue.playing = false;
 
@@ -268,7 +274,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                     };
                 };
             });
-            player.on('error', async err => {
+            player.on("error", async err => {
                 console.log(err);
 
                 if(npMsg && npMsg.deletable) npMsg.delete();
@@ -295,7 +301,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                         .setColor(color)
                 ]});
             });
-            player._state.resource.volume.setVolume(queue.volume/100);
+            // player._state.resource.volume.setVolume(queue.volume/100);
 
         queue.connection.subscribe(player);
         queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => { client.queue.delete(message.guild.id); });

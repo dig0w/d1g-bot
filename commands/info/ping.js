@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'ping',
-    description: 'Gives the bot ping',
+    name: "ping",
+    description: "Gives the bot ping",
     aliases: [],
     options: [],
     permissions: []

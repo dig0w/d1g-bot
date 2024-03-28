@@ -1,15 +1,15 @@
 module.exports = {
-    name: 'clear',
-    description: 'Clear the messages from a channel',
+    name: "clear",
+    description: "Clear the messages from a channel",
     aliases: [],
     options: [
         {
-            name: 'amount',
+            name: "amount",
             type: 3,
             required: true
         }
     ],
-    permissions: ['MANAGE_CHANNELS']
+    permissions: ["MANAGE_CHANNELS"]
 }
 module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     var amount = parseInt(args[1]) + 1;

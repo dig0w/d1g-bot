@@ -1,10 +1,10 @@
 module.exports = {
-    name: 'volume',
-    description: 'Change the volume',
-    aliases: ['v', 'vol'],
+    name: "volume",
+    description: "Change the volume",
+    aliases: ["v", "vol"],
     options: [
         {
-            name: 'volume',
+            name: "volume",
             type: 3,
             required: true
         }
@@ -17,7 +17,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> You need to be connected to voice channel!`)
+                        .setDescription("> You need to be connected to voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -27,7 +27,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> I\'m already playing music in other voice channel!`)
+                        .setDescription("> I\'m already playing music in other voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -40,7 +40,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 return message.reply({
                     embeds: [
                         new EmbedBuilder()
-                            .setDescription(`> There\'s no queue!`)
+                            .setDescription("> There\'s no queue!")
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }

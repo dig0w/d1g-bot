@@ -1,9 +1,9 @@
 module.exports = client => {
-    const fs = require('fs');
+    const fs = require("fs");
 
-    const ccategories = fs.readdirSync('./commands/');
+    const ccategories = fs.readdirSync("./commands/");
     for(const category of ccategories){
-        const commandFiles = fs.readdirSync(`./commands/${category}`).filter(File => File.endsWith('.js'));
+        const commandFiles = fs.readdirSync(`./commands/${category}`).filter(File => File.endsWith(".js"));
 
         for(const files of commandFiles){
             const command = require(`./commands/${category}/${files}`);
@@ -14,7 +14,7 @@ module.exports = client => {
         };
     };
 
-    const eventsFiles = fs.readdirSync('./events/');
+    const eventsFiles = fs.readdirSync("./events/");
     for(const files of eventsFiles){
         require(`./events/${files}`)(client);
     };

@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'queue',
-    description: 'Resume a song',
+    name: "queue",
+    description: "Resume a song",
     aliases: [],
     options: [],
     permissions: []
@@ -11,7 +11,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> You need to be connected to voice channel!`)
+                        .setDescription("> You need to be connected to voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -21,7 +21,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`> I\'m already playing music in other voice channel!`)
+                        .setDescription("> I\'m already playing music in other voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
@@ -34,7 +34,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 return message.reply({
                     embeds: [
                         new EmbedBuilder()
-                            .setDescription(`> There\'s no queue!`)
+                            .setDescription("> There\'s no queue!")
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }
@@ -49,9 +49,9 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         songDurantion = `${min}:${sec}`;
 
         var loop;
-        if(queue.loop == 0){ loop = 'Off' }
-        else if(queue.loop == 1){ loop = 'Queue' }
-        else if(queue.loop == 2){ loop = 'Song' };
+        if(queue.loop == 0){ loop = "Off" }
+        else if(queue.loop == 1){ loop = "Queue" }
+        else if(queue.loop == 2){ loop = "Song" };
 
         var currentPage = 0;
         const embeds = genQueuePage(queue);
@@ -66,16 +66,16 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             allowedMentions: { repliedUser: false }
         });
 
-        queueMsg.react('⬅️');
-        queueMsg.react('➡️');
+        queueMsg.react("⬅️");
+        queueMsg.react("➡️");
         const collector = queueMsg.createReactionCollector();
-        collector.on('collect', async (reaction, user) => {
+        collector.on("collect", async (reaction, user) => {
             if(user.id == client.user.id) return;
             if(user.bot && user.id != client.user.id) return reaction.users.remove(user);
 
             reaction.users.remove(user);
 
-            if(reaction._emoji.name == '➡️'){
+            if(reaction._emoji.name == "➡️"){
                 if(currentPage < embeds.length-1){
                     currentPage++;
                     queueMsg.edit({
@@ -87,7 +87,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                         ]
                     });
                 };
-            } else if(reaction._emoji.name == '⬅️'){
+            } else if(reaction._emoji.name == "⬅️"){
                 if(currentPage != 0){
                     --currentPage;
                     queueMsg.edit({
@@ -111,7 +111,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 var j = i;
                 k += 10;
 
-                const queueMap = page.map((song) => `**${++j}** - [${song.title}](${song.url})`).join('\n');
+                const queueMap = page.map((song) => `**${++j}** - [${song.title}](${song.url})`).join("\n");
 
                 embeds.push(queueMap);
             };

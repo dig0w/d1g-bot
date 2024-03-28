@@ -1,24 +1,24 @@
 module.exports = client => {
-    client.on('messageCreate', message => {
-        const Discord = require('discord.js');
+    client.on("messageCreate", message => {
+        const Discord = require("discord.js");
 
-        if(!message.content.startsWith(process.env['prefix']) || message.author.bot) return;
+        if(!message.content.startsWith(process.env.prefix) || message.author.bot) return;
 
-        var args = message.content.substring(process.env['prefix'].length).split(' ').filter(arg => arg != '');
+        var args = message.content.substring(process.env.prefix.length).split(" ").filter(arg => arg != "");
 
         const command = client.commands.get(args[0]) || client.commands.find(a => a.aliases.includes(args[0]));
             if(!command) return;
 
 //        var color = message.guild.me.displayHexColor;
-//            if(message.guild.me.displayHexColor == '#000000') color = '#AD8EFB';
-          var color = '#AD8EFB';
+//            if(message.guild.me.displayHexColor == "#000000") color = "#AD8EFB";
+          var color = "#AD8EFB";
       
         // Options
-            var options = '';
+            var options = "";
             command.options.forEach(option => { if(option.required){ options += `**\`${option.name}\`**`; } else{ options += `\`${option.name}\`` } });
 
             const usageEmbed = new Discord.EmbedBuilder()
-                .setDescription(`**Wrong Usage**\n\n> Use: \`${process.env['prefix']}${command.name}\`${options}`)
+                .setDescription(`**Wrong Usage**\n\n> Use: \`${process.env.prefix}${command.name}\`${options}`)
                 .setColor(color);
 
             var member;
@@ -32,38 +32,38 @@ module.exports = client => {
 
         // Permissions
             const validPermissions = [
-                'CREATE_INSTANT_INVITE',
-                'KICK_MEMBERS',
-                'BAN_MEMBERS',
-                'ADMINISTRATOR',
-                'MANAGE_CHANNELS',
-                'MANAGE_GUILD',
-                'ADD_REACTIONS',
-                'VIEW_AUDIT_LOG',
-                'PRIORITY_SPEAKER',
-                'STREAM',
-                'VIEW_CHANNEL',
-                'SEND_MESSAGES',
-                'SEND_TTS_MESSAGES',
-                'MANAGE_MESSAGES',
-                'EMBED_LINKS',
-                'ATTACH_FILES',
-                'READ_MESSAGE_HISTORY',
-                'MENTION_EVERYONE',
-                'USE_EXTERNAL_EMOJIS',
-                'VIEW_GUILD_INSIGHTS',
-                'CONNECT',
-                'SPEAK',
-                'MUTE_MEMBERS',
-                'DEAFEN_MEMBERS',
-                'MOVE_MEMBERS',
-                'USE_VAD',
-                'CHANGE_NICKNAME',
-                'MANAGE_NICKNAMES',
-                'MANAGE_ROLES',
-                'MANAGE_WEBHOOKS',
-                'MANAGE_EMOJIS',
-                'HIGHER_ROLE'
+                "CREATE_INSTANT_INVITE",
+                "KICK_MEMBERS",
+                "BAN_MEMBERS",
+                "ADMINISTRATOR",
+                "MANAGE_CHANNELS",
+                "MANAGE_GUILD",
+                "ADD_REACTIONS",
+                "VIEW_AUDIT_LOG",
+                "PRIORITY_SPEAKER",
+                "STREAM",
+                "VIEW_CHANNEL",
+                "SEND_MESSAGES",
+                "SEND_TTS_MESSAGES",
+                "MANAGE_MESSAGES",
+                "EMBED_LINKS",
+                "ATTACH_FILES",
+                "READ_MESSAGE_HISTORY",
+                "MENTION_EVERYONE",
+                "USE_EXTERNAL_EMOJIS",
+                "VIEW_GUILD_INSIGHTS",
+                "CONNECT",
+                "SPEAK",
+                "MUTE_MEMBERS",
+                "DEAFEN_MEMBERS",
+                "MOVE_MEMBERS",
+                "USE_VAD",
+                "CHANGE_NICKNAME",
+                "MANAGE_NICKNAMES",
+                "MANAGE_ROLES",
+                "MANAGE_WEBHOOKS",
+                "MANAGE_EMOJIS",
+                "HIGHER_ROLE"
             ];
 
             for(const permission of command.permissions){
@@ -72,18 +72,18 @@ module.exports = client => {
                 };
 
 
-                if(member && permission == 'HIGHER_ROLE' && message.member.roles.highest.rawPosition < member.roles.highest.rawPosition){
+                if(member && permission == "HIGHER_ROLE" && message.member.roles.highest.rawPosition < member.roles.highest.rawPosition){
                     return message.reply({
                         embeds: [
                             new Discord.EmbedBuilder()
-                                .setDescription(`**Missing Permissions**\n\n> The member has a higher or equal role to yours.`)
+                                .setDescription("**Missing Permissions**\n\n> The member has a higher or equal role to yours.")
                                 .setColor(color)
                         ],
                         allowedMentions: {
                             repliedUser: false
                         }
                     });
-                } else if(permission != 'HIGHER_ROLE' && !message.member.permissions.has(Discord.PermissionsBitField.Flags[permission])){
+                } else if(permission != "HIGHER_ROLE" && !message.member.permissions.has(Discord.PermissionsBitField.Flags[permission])){
                     return message.reply({
                         embeds: [
                             new Discord.EmbedBuilder()
