@@ -5,6 +5,7 @@ module.exports = {
     options: [
         {
             name: "volume",
+            description: "Volume 0-100",
             type: 3,
             required: true
         }

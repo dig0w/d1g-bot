@@ -5,6 +5,7 @@ module.exports = {
     options: [
         {
             name: "song",
+            description: "Song to play",
             type: 2,
             required: true
         }

@@ -4,7 +4,8 @@ module.exports = {
     aliases: ["r"],
     options: [
         {
-            name: "song position",
+            name: "position",
+            description: "Song to remove from queue",
             type: 3,
             required: true
         }

@@ -6,10 +6,10 @@ module.exports = {
     permissions: [],
     isExecVoice: false
 }
-module.exports.run = async (client, Discord, message, args, color) => {
+module.exports.run = async (client, Discord, command, args, color) => {
     const ms = require("ms");
 
-    return message.reply({
+    return command.reply({
         content: `\🤖 Uptime!\n> ${ms(client.uptime)}`,
         allowedMentions: {
             repliedUser: false

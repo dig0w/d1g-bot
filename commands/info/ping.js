@@ -6,8 +6,8 @@ module.exports = {
     permissions: [],
     isExecVoice: false
 }
-module.exports.run = async (client, Discord, message, args, color) => {
-    return message.reply({
+module.exports.run = async (client, Discord, command, args, color) => {
+    return command.reply({
         content: `🏓  Pong!\n> ${client.ws.ping}ms`,
         allowedMentions: {
             repliedUser: false

@@ -4,11 +4,13 @@ module.exports = {
     aliases: [],
     options: [
         {
-            name: "song position",
+            name: "position",
+            description: "Song to move",
             type: 3,
             required: true
         }, {
-            name: "new position",
+            name: "new",
+            description: "Song new position",
             type: 3,
             required: true
         }

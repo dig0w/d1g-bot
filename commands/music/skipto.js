@@ -4,7 +4,8 @@ module.exports = {
     aliases: [],
     options: [
         {
-            name: "song position",
+            name: "position",
+            description: "Song position to skip to",
             type: 3,
             required: true
         }

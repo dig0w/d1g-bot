@@ -1,17 +1,14 @@
 module.exports = client => {
-    client.on("messageCreate", message => {
-        const Discord = require("discord.js");
+    const Discord = require("discord.js");
+    const color = "#AD8EFB";
 
+    client.on("messageCreate", message => {
         if(!message.content.startsWith(process.env.prefix)) return;
 
         var args = message.content.substring(process.env.prefix.length).split(" ").filter(arg => arg != "");
 
         const command = client.commands.get(args[0]) || client.commands.find(a => a.aliases.includes(args[0]));
             if(!command) return;
-
-//        var color = message.guild.me.displayHexColor;
-//            if(message.guild.me.displayHexColor == "#000000") color = "#AD8EFB";
-          var color = "#AD8EFB";
       
         // Options
             var options = "";
@@ -97,5 +94,33 @@ module.exports = client => {
             };
 
         command.run(client, Discord, message, args, color);
+    });
+
+    client.on("interactionCreate", async interaction => {
+        if(!interaction.isCommand()) return;
+
+        const command = client.commands.get(interaction.commandName);
+            if(!command) return;
+
+        var args = [];
+        args.push(command.name);
+
+        for (let i = 0; i < interaction.options._hoistedOptions.length; i++) {
+            args.push("" + interaction.options._hoistedOptions[i].value);
+        };
+
+        // Run
+        try{
+            await command.run(client, Discord, interaction, args, color);
+        } catch(err){
+            console.error(err);
+            await interaction.reply({ embeds: [
+                    new Discord.EmbedBuilder()
+                        .setDescription(`Something went wrong... \n> \`${err}\``)
+                        .setColor(color)
+                ],
+                ephemeral: true
+            });
+        };
     });
 }
