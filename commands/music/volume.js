@@ -9,7 +9,8 @@ module.exports = {
             required: true
         }
     ],
-    permissions: []
+    permissions: [],
+    isExecVoice: true
 }
 module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     const voiceChannel = message.member.voice.channel;
@@ -27,7 +28,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             return message.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription("> I\'m already playing music in other voice channel!")
+                        .setDescription("> I\'m already connected to other voice channel!")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }

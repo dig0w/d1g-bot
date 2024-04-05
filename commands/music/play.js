@@ -9,7 +9,8 @@ module.exports = {
             required: true
         }
     ],
-    permissions: []
+    permissions: [],
+    isExecVoice: true
 }
 module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require("@discordjs/voice");
@@ -31,12 +32,13 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         return message.reply({
           embeds: [
               new EmbedBuilder()
-                  .setDescription("> I\'m already playing music in other voice channel!")
+                  .setDescription("> I\'m already connected to other voice channel!")
                   .setColor(color)
           ],
           allowedMentions: { repliedUser: false }
         });
       };
+
     const url = args.splice(1, args.length).join(" ");
 
     const ytPlaylistPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/(playlist\?list=)([^#\&\?]*).*/g;
@@ -125,10 +127,12 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         };
 
         if(queue){
+            const length = queue.songs.length;
             queue.songs = [...queue.songs, ...songs];
 
             if(!queue.playing){
-                await play(queue.songs[songs[0]]);
+                console.log("not playing");
+                await play(queue.songs[length]);
             };
 
             if(songs.length > 1 && playlistInfo){
@@ -205,14 +209,13 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         const queue = client.queue.get(message.guild.id);
 
         if(!song){
-            const connection = getVoiceConnection(message.guild.id);
-            if(connection){ connection.destroy(); };
-            return client.queue.delete(message.guild.id);
+            console.log("no songs", song);
+            return;
         };
 
         const player = createAudioPlayer();
         var stream;
-        console.log(ytPattern.test(song.url), scPattern.test(song.url), song.url);
+        console.log("url match:", ytPattern.test(song.url), scPattern.test(song.url), song.url);
         try {
             if(song.url.match(ytPattern) && song.url.match(ytPattern).length > 0){
                 stream = await playdl.stream(song.url, { discordPlayerCompatibility: true });
@@ -234,10 +237,10 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                     .setColor(color)
             ]});
         };
-        console.log(player, stream);
 
         var npMsg;
             player.on(AudioPlayerStatus.Playing, async () => {
+                console.log("playing");
                 queue.playing = true;
                 queue.npSong = song;
 
@@ -255,32 +258,45 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 ]});
             });
             player.on(AudioPlayerStatus.Idle, async () => {
-                console.log("idle", player);
+                console.log("idle");
                 if(npMsg && npMsg.deletable) npMsg.delete();
                 queue.playing = false;
 
-                if(queue.skipto > 0){ return play(queue.songs[queue.skipto]); };
+                if(queue.skipto > 0 && queue.songs.length >= queue.skipto){
+                    console.log("skipto");
+                    return play(queue.songs[queue.skipto]);
+                };
 
                 if(queue.loop == 1){
                     for(var i = 0; i < queue.songs.length; i++){
-                        if(queue.songs[queue.songs.length-1] == song){ play(queue.songs[0]); }
-                        else if(queue.songs[i] == song){ play(queue.songs[i+1]); };
+                        if(queue.songs[queue.songs.length-1] == song){
+                            console.log("loop 1 1");
+                            play(queue.songs[0]);
+                        } else if(queue.songs[i] == song){
+                            console.log("loop 1 2");
+                            play(queue.songs[i+1]);
+                        };
                     };
                 } else if(queue.loop == 2){
+                    console.log("loop 2");
                     play(song);
                 } else{
                     for(var i = 0; i < queue.songs.length; i++){
-                        if(queue.songs.length >= i+1 && queue.songs[i] == song){ play(queue.songs[i+1]); };
+                        if(queue.songs.length > i+1 && queue.songs[i] == song){
+                            console.log("else", i+1, queue.songs.length);
+                            play(queue.songs[i+1]);
+                        };
                     };
                 };
             });
             player.on("error", async err => {
+                console.log("error");
                 console.log(err);
 
                 if(npMsg && npMsg.deletable) npMsg.delete();
                 queue.playing = false;
 
-                if(queue.skipto > 0){ return play(queue.songs[queue.skipto]); };
+                if(queue.skipto > 0 && queue.songs.length >= queue.skipto){ return play(queue.songs[queue.skipto]); };
 
                 if(queue.loop == 1){
                     for(var i = 0; i < queue.songs.length; i++){

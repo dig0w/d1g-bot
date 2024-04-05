@@ -9,7 +9,8 @@ module.exports = {
             required: true
         }
     ],
-    permissions: ["MANAGE_CHANNELS"]
+    permissions: ["MANAGE_CHANNELS"],
+    isExecVoice: false
 }
 module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     var amount = parseInt(args[1]) + 1;

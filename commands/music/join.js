@@ -1,20 +1,10 @@
 module.exports = {
-    name: "move",
-    description: "Move a song in the queue",
-    aliases: [],
-    options: [
-        {
-            name: "song position",
-            type: 3,
-            required: true
-        }, {
-            name: "new position",
-            type: 3,
-            required: true
-        }
-    ],
+    name: "join",
+    description: "Join user voice channel",
+    aliases: ["connect"],
+    options: [],
     permissions: [],
-    isExecVoice: true
+    isExecVoice: false
 }
 module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     const voiceChannel = message.member.voice.channel;
@@ -40,33 +30,15 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         };
 
     try{
-        const queue = client.queue.get(message.guild.id);
-            if(!queue){
-                return message.reply({
-                    embeds: [
-                        new EmbedBuilder()
-                            .setDescription("> There\'s no songs to move!")
-                            .setColor(color)
-                    ],
-                    allowedMentions: { repliedUser: false }
-                });
-            };
+        const { joinVoiceChannel } = require("@discordjs/voice");
 
-        const moveSong = parseInt(args[1]);
-        const newPos = parseInt(args[2]);
-
-        const song = queue.songs[parseInt(moveSong) - 1];
-        queue.songs.splice(parseInt(moveSong) - 1, 1);
-        queue.songs.splice(parseInt(newPos) - 1, 0, song);
-
-        message.reply({
-            embeds: [
-                new EmbedBuilder()
-                    .setDescription(`↕️ ${message.member} moved [${song.title}](${song.url}) to position **\`${parseInt(newPos)}\`**`)
-                    .setColor(color)
-            ],
-            allowedMentions: { repliedUser: false }
+        joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: message.guild.id,
+            adapterCreator: message.guild.voiceAdapterCreator,
         });
+
+        message.react("👍");
     } catch (err){
         console.log(err);
         return await message.reply({

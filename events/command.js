@@ -2,7 +2,7 @@ module.exports = client => {
     client.on("messageCreate", message => {
         const Discord = require("discord.js");
 
-        if(!message.content.startsWith(process.env.prefix) || message.author.bot) return;
+        if(!message.content.startsWith(process.env.prefix)) return;
 
         var args = message.content.substring(process.env.prefix.length).split(" ").filter(arg => arg != "");
 
@@ -70,7 +70,6 @@ module.exports = client => {
                 if(!validPermissions.includes(permission)){
                     throw new Error(`Unknown permission: "${permission}"`);
                 };
-
 
                 if(member && permission == "HIGHER_ROLE" && message.member.roles.highest.rawPosition < member.roles.highest.rawPosition){
                     return message.reply({

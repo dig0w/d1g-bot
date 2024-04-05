@@ -3,7 +3,8 @@ module.exports = {
     description: "Gives the bot uptime",
     aliases: [],
     options: [],
-    permissions: []
+    permissions: [],
+    isExecVoice: false
 }
 module.exports.run = async (client, Discord, message, args, color) => {
     const ms = require("ms");
