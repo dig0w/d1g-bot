@@ -28,47 +28,12 @@ module.exports = client => {
             };
 
         // Permissions
-            const validPermissions = [
-                "CREATE_INSTANT_INVITE",
-                "KICK_MEMBERS",
-                "BAN_MEMBERS",
-                "ADMINISTRATOR",
-                "MANAGE_CHANNELS",
-                "MANAGE_GUILD",
-                "ADD_REACTIONS",
-                "VIEW_AUDIT_LOG",
-                "PRIORITY_SPEAKER",
-                "STREAM",
-                "VIEW_CHANNEL",
-                "SEND_MESSAGES",
-                "SEND_TTS_MESSAGES",
-                "MANAGE_MESSAGES",
-                "EMBED_LINKS",
-                "ATTACH_FILES",
-                "READ_MESSAGE_HISTORY",
-                "MENTION_EVERYONE",
-                "USE_EXTERNAL_EMOJIS",
-                "VIEW_GUILD_INSIGHTS",
-                "CONNECT",
-                "SPEAK",
-                "MUTE_MEMBERS",
-                "DEAFEN_MEMBERS",
-                "MOVE_MEMBERS",
-                "USE_VAD",
-                "CHANGE_NICKNAME",
-                "MANAGE_NICKNAMES",
-                "MANAGE_ROLES",
-                "MANAGE_WEBHOOKS",
-                "MANAGE_EMOJIS",
-                "HIGHER_ROLE"
-            ];
-
-            for(const permission of command.permissions){
-                if(!validPermissions.includes(permission)){
-                    throw new Error(`Unknown permission: "${permission}"`);
+            if (command.permission) {
+                if(Discord.PermissionFlagsBits[command.permission] == undefined){
+                    throw new Error(`Unknown permission: "${command.permission}"`);
                 };
 
-                if(member && permission == "HIGHER_ROLE" && message.member.roles.highest.rawPosition < member.roles.highest.rawPosition){
+                if(member && command.permission == "HIGHER_ROLE" && message.member.roles.highest.rawPosition < member.roles.highest.rawPosition){
                     return message.reply({
                         embeds: [
                             new Discord.EmbedBuilder()
@@ -79,11 +44,11 @@ module.exports = client => {
                             repliedUser: false
                         }
                     });
-                } else if(permission != "HIGHER_ROLE" && !message.member.permissions.has(Discord.PermissionsBitField.Flags[permission])){
+                } else if(command.permission != "HIGHER_ROLE" && !message.member.permissions.has(Discord.PermissionFlagsBits[command.permission])){
                     return message.reply({
                         embeds: [
                             new Discord.EmbedBuilder()
-                                .setDescription(`**Missing Permissions**\n\n> You don't have the required permissions.\n> **\`${permission}\`**`)
+                                .setDescription(`**Missing Permissions**\n\n> You don't have the required permissions.\n> **\`${command.permission}\`**`)
                                 .setColor(color)
                         ],
                         allowedMentions: {

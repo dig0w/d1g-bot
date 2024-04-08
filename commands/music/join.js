@@ -3,7 +3,7 @@ module.exports = {
     description: "Join user voice channel",
     aliases: ["connect"],
     options: [],
-    permissions: [],
+    permission: undefined,
     isExecVoice: false
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {

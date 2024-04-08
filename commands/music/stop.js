@@ -3,7 +3,7 @@ module.exports = {
     description: "Stops the queue",
     aliases: [],
     options: [],
-    permissions: [],
+    permission: undefined,
     isExecVoice: true
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {

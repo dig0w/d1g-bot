@@ -10,7 +10,7 @@ module.exports = {
             required: true
         }
     ],
-    permissions: ["ManageChannels"],
+    permission: "ManageChannels",
     isExecVoice: false
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {

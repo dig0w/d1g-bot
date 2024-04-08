@@ -3,7 +3,7 @@ module.exports = {
     description: "Gives the bot uptime",
     aliases: [],
     options: [],
-    permissions: [],
+    permission: undefined,
     isExecVoice: false
 }
 module.exports.run = async (client, Discord, command, args, color) => {

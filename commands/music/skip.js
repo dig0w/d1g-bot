@@ -3,7 +3,7 @@ module.exports = {
     description: "Skip to the next song in the queue",
     aliases: ["next"],
     options: [],
-    permissions: [],
+    permission: undefined,
     isExecVoice: true
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {

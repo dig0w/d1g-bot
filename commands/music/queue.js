@@ -3,7 +3,7 @@ module.exports = {
     description: "Resume a song",
     aliases: [],
     options: [],
-    permissions: [],
+    permission: undefined,
     isExecVoice: true
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {

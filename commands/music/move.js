@@ -15,7 +15,7 @@ module.exports = {
             required: true
         }
     ],
-    permissions: [],
+    permission: undefined,
     isExecVoice: true
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {

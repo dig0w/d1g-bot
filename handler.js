@@ -11,21 +11,20 @@ module.exports = async client => {
         for(const files of commandFiles){
             const command = require(`./commands/${category}/${files}`);
 
-            var permissions = "";
-
             if(command.name){
                 client.commands.set(command.name, command);
 
-                if (Discord.PermissionFlagsBits[command.permissions[0]] == undefined) {
-                    permissions = undefined;
-                } else {
-                    permissions = "" + Discord.PermissionFlagsBits[command.permissions[0]];
+            // Permissions
+                if (command.permission) {
+                    if(Discord.PermissionFlagsBits[command.permission] == undefined){
+                        throw new Error(`Unknown permission: "${command.permission}"`);
+                    };
                 };
 
                 const slahscmd = new Discord.SlashCommandBuilder()
                     .setName(command.name)
                     .setDescription(command.description)
-                    .setDefaultMemberPermissions(Discord.PermissionFlagsBits[command.permissions[0]])
+                    .setDefaultMemberPermissions(Discord.PermissionFlagsBits[command.permission])
                     .setDMPermission(false);
 
                 for (let i = 0; i < command.options.length; i++) {
