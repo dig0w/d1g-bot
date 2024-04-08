@@ -6,10 +6,10 @@ module.exports = {
     permissions: [],
     isExecVoice: true
 }
-module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
-    const voiceChannel = message.member.voice.channel;
+module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
+    const voiceChannel = command.member.voice.channel;
         if(!voiceChannel){
-            return message.reply({
+            return command.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setDescription("> You need to be connected to voice channel!")
@@ -18,8 +18,8 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 allowedMentions: { repliedUser: false }
             });
         };
-        if(message.guild.members.me.voice.channel && voiceChannel.id != message.guild.members.me.voice.channel.id){
-            return message.reply({
+        if(command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id){
+            return command.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setDescription("> I\'m already connected to other voice channel!")
@@ -30,9 +30,9 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         };
 
     try{
-        const queue = client.queue.get(message.guild.id);
+        const queue = client.queue.get(command.guild.id);
             if(!queue){
-                return message.reply({
+                return command.reply({
                     embeds: [
                         new EmbedBuilder()
                             .setDescription("> There\'s no queue to loop!")
@@ -44,11 +44,11 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
 
         var desc;
 
-        if(queue.loop == 0){ queue.loop = 1; desc = `🔁 ${message.member} looped the **queue**`; }
-        else if(queue.loop == 1){ queue.loop = 2; desc = `🔂 ${message.member} looped the **song**`; }
-        else if(queue.loop == 2){ queue.loop = 0; desc = `🔁 ${message.member} **disabled** the loop`; };
+        if(queue.loop == 0){ queue.loop = 1; desc = `🔁 ${command.member} looped the **queue**`; }
+        else if(queue.loop == 1){ queue.loop = 2; desc = `🔂 ${command.member} looped the **song**`; }
+        else if(queue.loop == 2){ queue.loop = 0; desc = `🔁 ${command.member} **disabled** the loop`; };
 
-        message.reply({
+        command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(desc)
@@ -58,7 +58,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         });
     } catch (err){
         console.log(err);
-        return await message.reply({
+        return await command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`Something went wrong... \n> \`${err}\``)

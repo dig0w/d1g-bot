@@ -13,14 +13,14 @@ module.exports = {
     permissions: [],
     isExecVoice: true
 }
-module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
+module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
     const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require("@discordjs/voice");
     const playdl = require("play-dl");
     const scdl = require("soundcloud-downloader").default;
 
-    const voiceChannel = message.member.voice.channel;
+    const voiceChannel = command.member.voice.channel;
       if(!voiceChannel){
-        return message.reply({
+        return command.reply({
           embeds: [
             new EmbedBuilder()
               .setDescription("> You need to be connected to voice channel!")
@@ -29,8 +29,8 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
           allowedMentions: { repliedUser: false }
         });
       };
-      if(message.guild.members.me.voice.channel && voiceChannel.id != message.guild.members.me.voice.channel.id){
-        return message.reply({
+      if(command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id){
+        return command.reply({
           embeds: [
               new EmbedBuilder()
                   .setDescription("> I\'m already connected to other voice channel!")
@@ -48,7 +48,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     const scPattern = /^https?:\/\/(soundcloud\.com)\/(.*)$/g;
 
     try{
-        const queue = client.queue.get(message.guild.id);
+        const queue = client.queue.get(command.guild.id);
 
         const queueConstruct = {
             voiceChannel: voiceChannel,
@@ -69,7 +69,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 title: plInfo.title,
                 url: plInfo.url,
                 tracks: plInfo.videoCount,
-                author: message.member
+                author: command.member
             };
 
             for(var i = 0; i < plInfo.videos.length; i++){
@@ -79,7 +79,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                     title: videoInfo.title,
                     url: videoInfo.url,
                     duration: videoInfo.durationInSec,
-                    author: message.member
+                    author: command.member
                 });
             };
         } else if(ytPattern.test(url)){
@@ -88,7 +88,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 title: videoInfo.video_details.title,
                 url: videoInfo.video_details.url,
                 duration: videoInfo.video_details.durationInSec,
-                author: message.member
+                author: command.member
             });
         } else if(scPlaylistPattern.test(url)){
             const plInfo = await scdl.getSetInfo(url, process.env.soundcloudID);
@@ -96,7 +96,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 title: plInfo.title,
                 url: plInfo.permalink_url,
                 tracks: plInfo.track_count || plInfo.tracks.length,
-                author: message.member
+                author: command.member
             };
 
             for(var i = 0; i < plInfo.tracks.length; i++){
@@ -106,7 +106,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                     title: trackInfo.title,
                     url: trackInfo.permalink_url,
                     duration: trackInfo.duration/1000,
-                    author: message.member
+                    author: command.member
                 });
             };
         } else if(scPattern.test(url)){
@@ -115,7 +115,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 title: trackInfo.title,
                 url: trackInfo.permalink_url,
                 duration: trackInfo.duration/1000,
-                author: message.member
+                author: command.member
             });
         } else {
             const videoInfo = await playdl.search(url, { limit: 1});
@@ -123,7 +123,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 title: videoInfo[0].title,
                 url: videoInfo[0].url,
                 duration: videoInfo[0].durationInSec,
-                author: message.member
+                author: command.member
             });
         };
 
@@ -137,7 +137,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             };
 
             if(songs.length > 1 && playlistInfo){
-                await message.reply({ embeds: [
+                await command.reply({ embeds: [
                         new EmbedBuilder()
                             .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
                             .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
@@ -155,7 +155,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                         if(sec <= 9) sec = `0${sec}`;
                     songDurantion = `${min}:${sec}`;
             
-                    await message.reply({ embeds: [
+                    await command.reply({ embeds: [
                             new EmbedBuilder()
                                 .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
                                 .setFooter({ text: `By: ${song.author.user.tag}` })
@@ -167,10 +167,10 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             };
         } else{
             queueConstruct.songs = songs;
-            client.queue.set(message.guild.id, queueConstruct);
+            client.queue.set(command.guild.id, queueConstruct);
 
             if(songs.length > 1 && playlistInfo){
-                await message.reply({ embeds: [
+                await command.reply({ embeds: [
                         new EmbedBuilder()
                             .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
                             .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
@@ -180,10 +180,29 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 });
             };
 
+            for(var i = 0; i < songs.length; i++){
+                const song = songs[i];
+
+                var songDurantion = song.duration;
+                var min = Math.floor((songDurantion / 60) << 0);
+                var sec = Math.floor((songDurantion) % 60);
+                    if(sec <= 9) sec = `0${sec}`;
+                songDurantion = `${min}:${sec}`;
+        
+                await command.reply({ embeds: [
+                        new EmbedBuilder()
+                            .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
+                            .setFooter({ text: `By: ${song.author.user.tag}` })
+                            .setColor(color)
+                    ],
+                    allowedMentions: { repliedUser: false }
+                });
+            };
+
             queueConstruct.connection = joinVoiceChannel({
                 channelId: voiceChannel.id,
-                guildId: message.guild.id,
-                adapterCreator: message.guild.voiceAdapterCreator
+                guildId: command.guild.id,
+                adapterCreator: command.guild.voiceAdapterCreator
             });
     
             await play(queueConstruct.songs[0]);
@@ -191,12 +210,12 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     } catch (err){
         console.log(err);
 
-        client.queue.delete(message.guild.id);
+        client.queue.delete(command.guild.id);
 
-        const connection = getVoiceConnection(message.guild.id);
+        const connection = getVoiceConnection(command.guild.id);
         if(connection){ connection.destroy(); };
 
-        return await message.reply({
+        return await command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`Something went wrong... \n> \`${err}\``)
@@ -207,7 +226,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
     };
 
     async function play(song) {
-        const queue = client.queue.get(message.guild.id);
+        const queue = client.queue.get(command.guild.id);
 
         if(!song){
             console.log("no songs", song);
@@ -232,7 +251,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         } catch (err) {
             console.log(err);
 
-            return await message.channel.send({ embeds: [
+            return await command.channel.send({ embeds: [
                 new EmbedBuilder()
                     .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
@@ -251,7 +270,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                     if(sec <= 9) sec = `0${sec}`;
                 songDurantion = `${min}:${sec}`;
     
-                npMsg = await message.channel.send({ embeds: [
+                npMsg = await command.channel.send({ embeds: [
                     new EmbedBuilder()
                         .setDescription(`▶️ Now Playing: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
                         .setFooter({ text: `By: ${song.author.user.tag}` })
@@ -312,7 +331,7 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                     };
                 };
 
-                return await message.channel.send({ embeds: [
+                return await command.channel.send({ embeds: [
                     new EmbedBuilder()
                         .setDescription(`Something went wrong... \n> \`${err}\``)
                         .setColor(color)
@@ -321,6 +340,6 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
             // player._state.resource.volume.setVolume(queue.volume/100);
 
         queue.connection.subscribe(player);
-        queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => { client.queue.delete(message.guild.id); });
+        queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => { client.queue.delete(command.guild.id); });
     };
 }

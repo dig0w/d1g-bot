@@ -18,10 +18,10 @@ module.exports = {
     permissions: [],
     isExecVoice: true
 }
-module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
-    const voiceChannel = message.member.voice.channel;
+module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
+    const voiceChannel = command.member.voice.channel;
         if(!voiceChannel){
-            return message.reply({
+            return command.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setDescription("> You need to be connected to voice channel!")
@@ -30,8 +30,8 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
                 allowedMentions: { repliedUser: false }
             });
         };
-        if(message.guild.members.me.voice.channel && voiceChannel.id != message.guild.members.me.voice.channel.id){
-            return message.reply({
+        if(command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id){
+            return command.reply({
                 embeds: [
                     new EmbedBuilder()
                         .setDescription("> I\'m already connected to other voice channel!")
@@ -42,9 +42,9 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         };
 
     try{
-        const queue = client.queue.get(message.guild.id);
+        const queue = client.queue.get(command.guild.id);
             if(!queue){
-                return message.reply({
+                return command.reply({
                     embeds: [
                         new EmbedBuilder()
                             .setDescription("> There\'s no songs to move!")
@@ -61,17 +61,17 @@ module.exports.run = async (client, { EmbedBuilder }, message, args, color) => {
         queue.songs.splice(parseInt(moveSong) - 1, 1);
         queue.songs.splice(parseInt(newPos) - 1, 0, song);
 
-        message.reply({
+        command.reply({
             embeds: [
                 new EmbedBuilder()
-                    .setDescription(`↕️ ${message.member} moved [${song.title}](${song.url}) to position **\`${parseInt(newPos)}\`**`)
+                    .setDescription(`↕️ ${command.member} moved [${song.title}](${song.url}) to position **\`${parseInt(newPos)}\`**`)
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false }
         });
     } catch (err){
         console.log(err);
-        return await message.reply({
+        return await command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`Something went wrong... \n> \`${err}\``)

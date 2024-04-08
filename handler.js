@@ -1,6 +1,8 @@
-module.exports = client => {
+module.exports = async client => {
     const fs = require("fs");
     const Discord = require('discord.js');
+
+    var commands = [];
 
     const ccategories = fs.readdirSync("./commands/");
     for(const category of ccategories){
@@ -9,8 +11,16 @@ module.exports = client => {
         for(const files of commandFiles){
             const command = require(`./commands/${category}/${files}`);
 
+            var permissions = "";
+
             if(command.name){
                 client.commands.set(command.name, command);
+
+                if (Discord.PermissionFlagsBits[command.permissions[0]] == undefined) {
+                    permissions = undefined;
+                } else {
+                    permissions = "" + Discord.PermissionFlagsBits[command.permissions[0]];
+                };
 
                 const slahscmd = new Discord.SlashCommandBuilder()
                     .setName(command.name)
@@ -46,9 +56,18 @@ module.exports = client => {
                         break;
                     };
                 };
+
+                commands.push(slahscmd.toJSON());
             };
         };
     };
+
+    const rest = new Discord.REST().setToken(process.env.clientToken);
+
+    await rest.put(
+        Discord.Routes.applicationCommands(process.env.clientId),
+        { body: commands },
+    );
 
     const eventsFiles = fs.readdirSync("./events/");
     for(const files of eventsFiles){

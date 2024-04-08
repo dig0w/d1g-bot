@@ -18,4 +18,4 @@ client.queue = new Map();
 client.commands = new Discord.Collection();
 require("./handler.js")(client);
 
-client.login(process.env.token);
+client.login(process.env.clientToken);
