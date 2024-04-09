@@ -7,7 +7,9 @@ module.exports = {
             name: "amount",
             description: "Amount to clear",
             type: 3,
-            required: true
+            required: true,
+            maxValue: 100,
+            minValue: 0
         }
     ],
     permission: "ManageChannels",

@@ -54,12 +54,23 @@ module.exports = async client => {
                             };
                         break;
                         case 3:
-                            slahscmd.addNumberOption(option => 
-                                option
-                                    .setName(command.options[i].name)
-                                    .setDescription(command.options[i].description)
-                                    .setRequired(command.options[i].required)
-                            );
+                            if (command.options[i].maxValue != undefined && command.options[i].minValue != undefined) {
+                                slahscmd.addNumberOption(option => 
+                                    option
+                                        .setName(command.options[i].name)
+                                        .setDescription(command.options[i].description)
+                                        .setRequired(command.options[i].required)
+                                        .setMaxValue(command.options[i].maxValue)
+                                        .setMinValue(command.options[i].minValue)
+                                );
+                            } else {
+                                slahscmd.addNumberOption(option => 
+                                    option
+                                        .setName(command.options[i].name)
+                                        .setDescription(command.options[i].description)
+                                        .setRequired(command.options[i].required)
+                                );
+                            };
                         break;
                     };
                 };

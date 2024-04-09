@@ -7,7 +7,9 @@ module.exports = {
             name: "volume",
             description: "Volume 0-100",
             type: 3,
-            required: true
+            required: true,
+            maxValue: 100,
+            minValue: 0
         }
     ],
     permission: undefined,
