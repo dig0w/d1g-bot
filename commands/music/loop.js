@@ -2,7 +2,19 @@ module.exports = {
     name: "loop",
     description: "Loop the queue or the current song",
     aliases: [],
-    options: [],
+    options: [
+        {
+            name: "type",
+            description: "Type of loop to apply",
+            type: 2,
+            required: true,
+            choices: [
+                { name: "queue", value: "queue" },
+                { name: "song", value: "song" },
+                { name: "disabled", value: "disabled" }
+            ]
+        }
+    ],
     permission: undefined,
     isExecVoice: true
 }
@@ -44,9 +56,16 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
 
         var desc;
 
-        if(queue.loop == 0){ queue.loop = 1; desc = `🔁 ${command.member} looped the **queue**`; }
-        else if(queue.loop == 1){ queue.loop = 2; desc = `🔂 ${command.member} looped the **song**`; }
-        else if(queue.loop == 2){ queue.loop = 0; desc = `🔁 ${command.member} **disabled** the loop`; };
+        if (args[1] == "queue") {
+            queue.loop = 1;
+            desc = `🔁 ${command.member} looped the **queue**`;
+        } else if (args[1] == "song") {
+            queue.loop = 2;
+            desc = `🔂 ${command.member} looped the **song**`;
+        } else if (args[1] == "disabled") {
+            queue.loop = 0;
+            desc = `🔁 ${command.member} **disabled** the loop`;
+        } else { return };
 
         command.reply({
             embeds: [

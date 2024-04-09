@@ -15,10 +15,8 @@ module.exports = async client => {
                 client.commands.set(command.name, command);
 
             // Permissions
-                if (command.permission) {
-                    if(Discord.PermissionFlagsBits[command.permission] == undefined){
-                        throw new Error(`Unknown permission: "${command.permission}"`);
-                    };
+                if (command.permission && Discord.PermissionFlagsBits[command.permission] == undefined) {
+                    throw new Error(`Unknown permission: "${command.permission}"`);
                 };
 
                 const slahscmd = new Discord.SlashCommandBuilder()
@@ -38,12 +36,22 @@ module.exports = async client => {
                             );
                         break;
                         case 2:
-                            slahscmd.addStringOption(option => 
-                                option
-                                    .setName(command.options[i].name)
-                                    .setDescription(command.options[i].description)
-                                    .setRequired(command.options[i].required)
-                            );
+                            if (command.options[i].choices) {
+                                slahscmd.addStringOption(option =>
+                                    option
+                                        .setName(command.options[i].name)
+                                        .setDescription(command.options[i].description)
+                                        .setRequired(command.options[i].required)
+                                        .addChoices(command.options[i].choices[0], command.options[i].choices[1], command.options[i].choices[2])
+                                );
+                            } else {
+                                slahscmd.addStringOption(option => 
+                                    option
+                                        .setName(command.options[i].name)
+                                        .setDescription(command.options[i].description)
+                                        .setRequired(command.options[i].required)
+                                );
+                            };
                         break;
                         case 3:
                             slahscmd.addNumberOption(option => 
