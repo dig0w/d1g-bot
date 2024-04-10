@@ -16,6 +16,7 @@ module.exports = {
 module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType }, command, args, color) => {
     const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require("@discordjs/voice");
     const playdl = require("play-dl");
+    const ytdl = require("ytdl-core");
     const scdl = require("soundcloud-downloader").default;
 
     const voiceChannel = command.member.voice.channel;
@@ -40,7 +41,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         });
       };
 
-    const url = args.splice(1, args.length).join(" ");
+    var url = args.splice(1, args.length).join(" ");
 
     const ytPlaylistPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/(playlist\?list=)([^#\&\?]*).*/g;
     const ytPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/g;
@@ -84,11 +85,17 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 });
             };
         } else if (ytPattern.test(url)) {
-            const videoInfo = await playdl.video_info(url);
+            console.log(url.split("&")[0]);
+
+            const videoInfo = await ytdl.getBasicInfo(ytdl.getURLVideoID(url.split("&")[0]));
+
+            console.log(videoInfo);
+
+            // const videoInfo = await playdl.video_basic_info(url.split("&")[0]);
             songs.push({
-                title: videoInfo.video_details.title,
-                url: videoInfo.video_details.url,
-                duration: videoInfo.video_details.durationInSec,
+                title: videoInfo.videoDetails.title,
+                url: videoInfo.videoDetails.video_url,
+                duration: videoInfo.videoDetails.lengthSeconds,
                 author: command.member
             });
         } else if (scPlaylistPattern.test(url)) {

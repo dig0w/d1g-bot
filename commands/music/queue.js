@@ -82,14 +82,12 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             if (currentPage == 0) {
                 rewindBtn.setDisabled(true);
                 previousBtn.setDisabled(true);
-                nextBtn.setDisabled(false);
-                fowardBtn.setDisabled(false);
-            } else if (currentPage == embeds.length - 1) {
-                rewindBtn.setDisabled(false);
-                previousBtn.setDisabled(false);
+            };
+            if (currentPage == embeds.length - 1) {
                 nextBtn.setDisabled(true);
                 fowardBtn.setDisabled(true);
-            } else {
+            };
+            if (currentPage != 0 && currentPage != embeds.length - 1) {
                 rewindBtn.setDisabled(false);
                 previousBtn.setDisabled(false);
                 nextBtn.setDisabled(false);
