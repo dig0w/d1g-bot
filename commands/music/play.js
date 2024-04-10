@@ -85,13 +85,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 });
             };
         } else if (ytPattern.test(url)) {
-            console.log(url.split("&")[0]);
-
             const videoInfo = await ytdl.getBasicInfo(ytdl.getURLVideoID(url.split("&")[0]));
 
-            console.log(videoInfo);
-
-            // const videoInfo = await playdl.video_basic_info(url.split("&")[0]);
             songs.push({
                 title: videoInfo.videoDetails.title,
                 url: videoInfo.videoDetails.video_url,
