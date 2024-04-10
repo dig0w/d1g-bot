@@ -8,43 +8,45 @@ module.exports = {
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
     const voiceChannel = command.member.voice.channel;
-        if(!voiceChannel){
+        if (!voiceChannel) {
             return command.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription("> You need to be connected to voice channel!")
+                        .setDescription("> You need to be connected to voice channel")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
             });
         };
-        if(command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id){
+        if (command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id) {
             return command.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription("> I\'m already connected to other voice channel!")
+                        .setDescription("> I\'m already connected to other voice channel")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
             });
         };
 
-    try{
+    try {
         const queue = client.queue.get(command.guild.id);
-            if(!queue){
+            if (!queue) {
                 return command.reply({
                     embeds: [
                         new EmbedBuilder()
-                            .setDescription("> There\'s no queue to shuffle!")
+                            .setDescription("> There\'s no queue to shuffle")
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }
                 });
             };
 
+        const startIndex = queue.songs.findIndex(song => song == queue.npSong) + 1;
+
         var songs = queue.songs;
-            for(var i = 0; i < songs.length; i++){
-                var j = 1 + Math.floor(Math.random() * i);
+            for (let i = songs.length - 1; i > startIndex; i--) {
+                const j = Math.floor(Math.random() * (i - startIndex + 1)) + startIndex;
                 [songs[i], songs[j]] = [songs[j], songs[i]];
             };
         queue.songs = songs;
@@ -57,7 +59,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
             ],
             allowedMentions: { repliedUser: false }
         });
-    } catch (err){
+    } catch (err) {
         console.log(err);
         return await command.reply({
             embeds: [

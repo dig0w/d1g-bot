@@ -8,7 +8,7 @@ module.exports = {
 }
 module.exports.run = async (client, Discord, command, args, color) => {
     return command.reply({
-        content: `🏓  Pong!\n> ${client.ws.ping}ms`,
+        content: `🏓  Pong\n> ${client.ws.ping}ms`,
         allowedMentions: {
             repliedUser: false
         }

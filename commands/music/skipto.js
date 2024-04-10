@@ -15,41 +15,41 @@ module.exports = {
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
     const voiceChannel = command.member.voice.channel;
-        if(!voiceChannel){
+        if (!voiceChannel) {
             return command.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription("> You need to be connected to voice channel!")
+                        .setDescription("> You need to be connected to voice channel")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
             });
         };
-        if(command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id){
+        if (command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id) {
             return command.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription("> I\'m already connected to other voice channel!")
+                        .setDescription("> I\'m already connected to other voice channel")
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
             });
         };
 
-    try{
+    try {
         const queue = client.queue.get(command.guild.id);
-            if(!queue){
+            if (!queue) {
                 return command.reply({
                     embeds: [
                         new EmbedBuilder()
-                            .setDescription("> There\'s no song to skip!")
+                            .setDescription("> There\'s no song to skip")
                             .setColor(color)
                     ],
                     allowedMentions: { repliedUser: false }
                 });
             };
 
-        const skipto = parseInt(args[1])-1;
+        const skipto = parseInt(args[1]);
         queue.skipto = skipto;
 
         queue.connection._state.subscription.player.stop();
@@ -62,7 +62,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
             ],
             allowedMentions: { repliedUser: false }
         });
-    } catch (err){
+    } catch (err) {
         console.log(err);
         return await command.reply({
             embeds: [

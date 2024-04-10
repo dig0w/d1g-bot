@@ -17,25 +17,24 @@ module.exports = {
 }
 module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
     var amount = parseInt(args[1]) + 1;
-        if(amount > 100) amount = 100;
+        if (amount > 100) amount = 100;
+        if (command.commandName != undefined) { amount = amount - 1 };
 
-    const channel = client.channels.cache.get(command.channelId);
-
-    channel.bulkDelete(amount, true).then(async (msgs) => {
-        if(command.commandName != undefined) {
+    command.channel.bulkDelete(amount, true).then(async (msgs) => {
+        if (command.commandName != undefined) {
             command.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`I deleted **\`${msgs.size}\`** messages!`)
+                        .setDescription(`I deleted **\`${msgs.size}\`** messages`)
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
             }).then(async (msg) => setTimeout(async () => { try{ await msg.delete()} catch(err){ return }; }, 4500));
         } else {
-            channel.send({
+            command.channel.send({
                 embeds: [
                     new EmbedBuilder()
-                        .setDescription(`I deleted **\`${msgs.size - 1}\`** messages!`)
+                        .setDescription(`I deleted **\`${msgs.size - 1}\`** messages`)
                         .setColor(color)
                 ],
                 allowedMentions: { repliedUser: false }
