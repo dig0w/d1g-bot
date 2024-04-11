@@ -55,11 +55,11 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             voiceChannel: voiceChannel,
             connection: undefined,
             songs: [],
-            playing: false,
+            status: "idle",
             volume: 50,
             npSong: 0,
-            skipto: 0,
             loop: 0,
+            skipto: 0,
             stop: false
         };
         var songs = [];
@@ -134,7 +134,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             const length = queue.songs.length;
             queue.songs = [...queue.songs, ...songs];
 
-            if (!queue.playing) {
+            if (queue.status == "idle") {
                 console.log("not playing");
                 await play(queue.songs[length]);
             };
@@ -238,7 +238,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
         const player = createAudioPlayer();
         var stream;
-        console.log("url match:", ytPattern.test(song.url), scPattern.test(song.url), song.url);
+        console.log("url match: yt:", song.url.match(ytPattern) && song.url.match(ytPattern).length > 0, "sc:", song.url.match(scPattern) && song.url.match(scPattern).length > 0, song.url);
         try {
             if (song.url.match(ytPattern) && song.url.match(ytPattern).length > 0) {
                 stream = await playdl.stream(song.url, { discordPlayerCompatibility: true });
@@ -248,8 +248,6 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
     
                 player.play(createAudioResource(stream, { inlineVolume: true }));
-            } else {
-                console.log(song.url.match(ytPattern).length > 0, song.url.match(scPattern) && song.url.match(scPattern).length > 0, song.url);
             };
         } catch (err) {
             console.log(err);
@@ -264,7 +262,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         var npMsg;
             player.on(AudioPlayerStatus.Playing, async () => {
                 console.log("playing");
-                queue.playing = true;
+                queue.status = "playing";
                 queue.npSong = song;
 
                 if (npMsg && npMsg.deletable) {
@@ -417,10 +415,11 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             });
             player.on(AudioPlayerStatus.Idle, async () => {
                 console.log("idle");
+                queue.status = "idle";
+
                 if(npMsg && npMsg.deletable) {
                     command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
                 };
-                queue.playing = false;
 
                 if (queue.stop) {
                     await queue.connection.destroy();
@@ -437,32 +436,41 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     for (let i = 0; i < queue.songs.length; i++) {
                         if (queue.songs[queue.songs.length-1] == song) {
                             console.log("loop 1 1");
-                            play(queue.songs[0]);
+                            return play(queue.songs[0]);
                         } else if (queue.songs[i] == song) {
                             console.log("loop 1 2");
-                            play(queue.songs[i+1]);
+                            return play(queue.songs[i+1]);
                         };
                     };
                 } else if (queue.loop == 2) {
                     console.log("loop 2");
-                    play(song);
+                    return play(song);
                 } else {
                     for (let i = 0; i < queue.songs.length; i++) {
                         if (queue.songs.length > i+1 && queue.songs[i] == song) {
                             console.log("else", i+1, queue.songs.length);
-                            play(queue.songs[i+1]);
+                            return play(queue.songs[i+1]);
                         };
                     };
                 };
+
+                setTimeout(async () => {
+                    if (queue.status == "idle") {
+                        console.log("destroy connection, inactive");
+    
+                        await queue.connection.destroy();
+                        return client.queue.delete(command.guild.id);
+                    };
+                }, 1000*60*.5);
             });
             player.on("error", async err => {
                 console.log("error");
                 console.log(err);
+                queue.status = "idle";
 
                 if (npMsg && npMsg.deletable) {
                     command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
                 };
-                queue.playing = false;
 
                 if (queue.stop) {
                     await queue.connection.destroy();
