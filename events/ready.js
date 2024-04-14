@@ -1,5 +1,3 @@
 module.exports = client => {
-    client.on("ready", () => {
-        console.log(`🤖 ${client.user.tag} is ready!`);
-    });
+    client.on("ready", () => console.log(`🤖 Client, ${client.user.tag}, is ready!`) );
 }

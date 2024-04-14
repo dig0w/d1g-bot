@@ -7,7 +7,7 @@ app.get("/", (req, res) => {
     ping.setHours(ping.getHours()-3);
     res.sendStatus(200);
 });
-app.listen(port);
+app.listen(process.env.PORT || port, () => console.log(`🟩 App listening on port: ${process.env.PORT || port}`) );
 
 const Discord = require("discord.js");
 
