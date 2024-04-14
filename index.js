@@ -5,7 +5,7 @@ const port = 8080;
 app.get("/", (req, res) => {
     const ping = new Date();
     ping.setHours(ping.getHours()-3);
-    res.sendStatus(200);
+    res.sendStatus(202);
 });
 app.listen(process.env.PORT || port, () => console.log(`🟩 App listening on port: ${process.env.PORT || port}`) );
 
