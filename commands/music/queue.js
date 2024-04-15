@@ -31,7 +31,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             });
         };
 
-    try{
+    try {
         var queue = client.queue.get(command.guild.id);
             if (!queue) {
                 return command.reply({
@@ -119,7 +119,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     } else if (interaction.customId == "foward") {
                         currentPage = embeds.length - 1; 
                     };
-        
+
                     if (currentPage == 0) {
                         rewindBtn.setDisabled(true);
                         previousBtn.setDisabled(true);
@@ -136,22 +136,22 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                         nextBtn.setDisabled(false);
                         fowardBtn.setDisabled(false);
                     };
-        
+
                     queue = client.queue.get(command.guild.id);
-        
+
                     embeds = genQueuePage(queue);
-        
+
                     npSong = queue.songs.find(song => song == queue.npSong);
                     songDurantion = npSong.duration;
                     min = Math.floor((songDurantion / 60) << 0);
                     sec = Math.floor((songDurantion) % 60);
                         if (sec <= 9) { sec = `0${sec}` };
                     songDurantion = `${min}:${sec}`;
-        
+
                     if (queue.loop == 0) { loop = "Disabled" }
                     else if (queue.loop == 1) { loop = "Queue" }
                     else if (queue.loop == 2) { loop = "Song" };
-        
+
                     interaction.update({
                         embeds: [
                             new EmbedBuilder()
@@ -163,9 +163,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                         components: [new ActionRowBuilder().addComponents(rewindBtn, previousBtn, nextBtn, fowardBtn)]
                     });
                 };
-            } catch (err) {
-                return  
-            };
+            } catch (err) { return };
         });
 
         function genQueuePage(queue) {

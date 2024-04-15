@@ -18,6 +18,20 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
     const playdl = require("play-dl");
     const ytdl = require("ytdl-core");
     const scdl = require("soundcloud-downloader").default;
+    const Spotify = require('spotifydl-core').default
+    const spdl = new Spotify({
+        clientId: process.env.spotifyID,
+        clientSecret: process.env.spotifySecret
+    });
+
+    await playdl.setToken({
+        spotify : {
+            client_id: process.env.spotifyID,
+            client_secret: process.env.spotifySecret,
+            refresh_token: process.env.spotifyRefresh,
+            market: 'US'
+        }
+   })
 
     const voiceChannel = command.member.voice.channel;
       if (!voiceChannel) {
@@ -41,12 +55,9 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         });
       };
 
-    var url = args.splice(1, args.length).join(" ");
+        if (command.commandName != undefined) { await command.deferReply() };
 
-    const ytPlaylistPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/(playlist\?list=)([^#\&\?]*).*/g;
-    const ytPattern = /^(https?:\/\/)?(www\.)?(m\.)?(youtube\.com|youtu\.?be)\/.+$/g;
-    const scPlaylistPattern = /^https?:\/\/(soundcloud\.com)\/.+?\/(sets)\/(.*)$/g;
-    const scPattern = /^https?:\/\/(soundcloud\.com)\/(.*)$/g;
+    var url = args.splice(1, args.length).join(" ");
 
     try{
         const queue = client.queue.get(command.guild.id);
@@ -65,7 +76,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         var songs = [];
         var playlistInfo;
 
-        if (ytPlaylistPattern.test(url)) {
+        if (url.startsWith("https") && playdl.yt_validate(url) === "playlist" && !ytdl.validateURL(url)) {
             const plInfo = await playdl.playlist_info(url, { incomplete : true });
             playlistInfo = {
                 title: plInfo.title,
@@ -84,7 +95,9 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     author: command.member
                 });
             };
-        } else if (ytPattern.test(url)) {
+
+            queueSongs(songs);
+        } else if (ytdl.validateURL(url)) {
             const videoInfo = await ytdl.getBasicInfo(ytdl.getURLVideoID(url.split("&")[0]));
 
             songs.push({
@@ -93,7 +106,9 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 duration: videoInfo.videoDetails.lengthSeconds,
                 author: command.member
             });
-        } else if (scPlaylistPattern.test(url)) {
+
+            queueSongs(songs);
+        } else if (scdl.isPlaylistURL(url)) {
             const plInfo = await scdl.getSetInfo(url, process.env.soundcloudID);
             playlistInfo = {
                 title: plInfo.title,
@@ -112,7 +127,9 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     author: command.member
                 });
             };
-        } else if (scPattern.test(url)) {
+
+            queueSongs(songs);
+        } else if (scdl.isValidUrl(url)) {
             const trackInfo = await scdl.getInfo(url, process.env.soundcloudID);
             songs.push({
                 title: trackInfo.title,
@@ -120,6 +137,50 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 duration: trackInfo.duration/1000,
                 author: command.member
             });
+
+            queueSongs(songs);
+        } else if (url.startsWith("https") && playdl.sp_validate(url) === "playlist" || url.startsWith("https") && playdl.sp_validate(url) === "album") {
+            if (playdl.is_expired()) { await playdl.refreshToken() };
+
+            const plInfo = await playdl.spotify(url);
+            playlistInfo = {
+                title: plInfo.name,
+                url: plInfo.url,
+                tracks: plInfo.tracksCount,
+                author: command.member
+            };
+
+            await plInfo.fetched_tracks.forEach(async mapInfo => {
+                for (let i = 0; i < mapInfo.length; i++) {
+                    const spTrack = mapInfo[i];
+
+                    const videoInfo = await playdl.search(`${spTrack.name}`, { limit: 1 });
+
+                    songs.push({
+                        title: videoInfo[0].title,
+                        url: videoInfo[0].url,
+                        duration: videoInfo[0].durationInSec,
+                        author: command.member
+                    });
+                };
+                
+                queueSongs(songs);
+            });
+        } else if (url.startsWith("https") && playdl.sp_validate(url) === "track") {
+            if (playdl.is_expired()) { await playdl.refreshToken() };
+
+            const spTrack = await playdl.spotify(url);
+
+            const videoInfo = await playdl.search(`${spTrack.name}`, { limit: 1 });
+
+            songs.push({
+                title: videoInfo[0].title,
+                url: videoInfo[0].url,
+                duration: videoInfo[0].durationInSec,
+                author: command.member
+            });
+
+            queueSongs(songs);
         } else {
             const videoInfo = await playdl.search(url, { limit: 1});
             songs.push({
@@ -128,87 +189,135 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 duration: videoInfo[0].durationInSec,
                 author: command.member
             });
+
+            queueSongs(songs);
         };
 
-        if (queue) {
-            const length = queue.songs.length;
-            queue.songs = [...queue.songs, ...songs];
-
-            if (queue.status == "idle") {
-                console.log("not playing");
-                await play(queue.songs[length]);
-            };
-
-            if (songs.length > 1 && playlistInfo) {
-                await command.reply({ embeds: [
-                        new EmbedBuilder()
-                            .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
-                            .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
-                            .setColor(color)
-                    ],
-                    allowedMentions: { repliedUser: false }
-                });
-            } else {
-                for (let i = 0; i < songs.length; i++) {
-                    const song = songs[i];
+        async function queueSongs(songs) {
+            if (queue) {
+                const length = queue.songs.length;
+                queue.songs = [...queue.songs, ...songs];
     
-                    var songDurantion = song.duration;
-                    var min = Math.floor((songDurantion / 60) << 0);
-                    var sec = Math.floor((songDurantion) % 60);
-                        if (sec <= 9) { sec = `0${sec}` };
-                    songDurantion = `${min}:${sec}`;
-            
-                    await command.reply({ embeds: [
-                            new EmbedBuilder()
-                                .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
-                                .setFooter({ text: `By: ${song.author.user.tag}` })
-                                .setColor(color)
-                        ],
-                        allowedMentions: { repliedUser: false }
-                    });
+                if (queue.status == "idle") {
+                    console.log("not playing");
+                    await play(queue.songs[length]);
                 };
-            };
-        } else{
-            queueConstruct.songs = songs;
-            client.queue.set(command.guild.id, queueConstruct);
-
-            if (songs.length > 1 && playlistInfo) {
-                await command.reply({ embeds: [
-                        new EmbedBuilder()
-                            .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
-                            .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
-                            .setColor(color)
-                    ],
-                    allowedMentions: { repliedUser: false }
-                });
-            } else {
-                for (let i = 0; i < songs.length; i++) {
-                    const song = songs[i];
     
-                    var songDurantion = song.duration;
-                    var min = Math.floor((songDurantion / 60) << 0);
-                    var sec = Math.floor((songDurantion) % 60);
-                        if (sec <= 9) { sec = `0${sec}` };
-                    songDurantion = `${min}:${sec}`;
-            
-                    await command.reply({ embeds: [
-                            new EmbedBuilder()
-                                .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
-                                .setFooter({ text: `By: ${song.author.user.tag}` })
-                                .setColor(color)
-                        ],
-                        allowedMentions: { repliedUser: false }
-                    });
+                if (songs.length > 1 && playlistInfo) {
+                    try {
+                        await command.reply({ embeds: [
+                                new EmbedBuilder()
+                                    .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
+                                    .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
+                                    .setColor(color)
+                            ],
+                            allowedMentions: { repliedUser: false }
+                        });
+                    } catch (err) {
+                        await command.editReply({ embeds: [
+                                new EmbedBuilder()
+                                    .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
+                                    .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
+                                    .setColor(color)
+                            ],
+                            allowedMentions: { repliedUser: false }
+                        });
+                    };
+                } else {
+                    for (let i = 0; i < songs.length; i++) {
+                        const song = songs[i];
+        
+                        var songDurantion = song.duration;
+                        var min = Math.floor((songDurantion / 60) << 0);
+                        var sec = Math.floor((songDurantion) % 60);
+                            if (sec <= 9) { sec = `0${sec}` };
+                        songDurantion = `${min}:${sec}`;
+                
+                        try {
+                            await command.reply({ embeds: [
+                                    new EmbedBuilder()
+                                        .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
+                                        .setFooter({ text: `By: ${song.author.user.tag}` })
+                                        .setColor(color)
+                                ],
+                                allowedMentions: { repliedUser: false }
+                            });
+                        } catch (err) {
+                            await command.editReply({ embeds: [
+                                    new EmbedBuilder()
+                                        .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
+                                        .setFooter({ text: `By: ${song.author.user.tag}` })
+                                        .setColor(color)
+                                ],
+                                allowedMentions: { repliedUser: false }
+                            });
+                        };
+                    };
                 };
-            };
-
-            queueConstruct.connection = joinVoiceChannel({
-                channelId: voiceChannel.id,
-                guildId: command.guild.id,
-                adapterCreator: command.guild.voiceAdapterCreator
-            });
+            } else {
+                queueConstruct.songs = songs;
+                client.queue.set(command.guild.id, queueConstruct);
     
-            await play(queueConstruct.songs[0]);
+                if (songs.length > 1 && playlistInfo) {
+                    try {
+                        await command.reply({ embeds: [
+                                new EmbedBuilder()
+                                    .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
+                                    .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
+                                    .setColor(color)
+                            ],
+                            allowedMentions: { repliedUser: false }
+                        });
+                    } catch (err) {
+                        await command.editReply({ embeds: [
+                                new EmbedBuilder()
+                                    .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
+                                    .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
+                                    .setColor(color)
+                            ],
+                            allowedMentions: { repliedUser: false }
+                        });
+                    };
+                } else {
+                    for (let i = 0; i < songs.length; i++) {
+                        const song = songs[i];
+        
+                        var songDurantion = song.duration;
+                        var min = Math.floor((songDurantion / 60) << 0);
+                        var sec = Math.floor((songDurantion) % 60);
+                            if (sec <= 9) { sec = `0${sec}` };
+                        songDurantion = `${min}:${sec}`;
+                
+                        try {
+                            await command.reply({ embeds: [
+                                    new EmbedBuilder()
+                                        .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
+                                        .setFooter({ text: `By: ${song.author.user.tag}` })
+                                        .setColor(color)
+                                ],
+                                allowedMentions: { repliedUser: false }
+                            });
+                        } catch (err) {
+                            await command.editReply({ embeds: [
+                                    new EmbedBuilder()
+                                        .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
+                                        .setFooter({ text: `By: ${song.author.user.tag}` })
+                                        .setColor(color)
+                                ],
+                                allowedMentions: { repliedUser: false }
+                            });
+                        };
+                    };
+                };
+    
+                queueConstruct.connection = joinVoiceChannel({
+                    channelId: voiceChannel.id,
+                    guildId: command.guild.id,
+                    adapterCreator: command.guild.voiceAdapterCreator
+                });
+        
+                await play(queueConstruct.songs[0]);
+            };
         };
     } catch (err) {
         console.log(err);
@@ -238,13 +347,13 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
         const player = createAudioPlayer();
         var stream;
-        console.log("url match: yt:", song.url.match(ytPattern) && song.url.match(ytPattern).length > 0, "sc:", song.url.match(scPattern) && song.url.match(scPattern).length > 0, song.url);
+        console.log("url match: yt:", ytdl.validateURL(song.url), "sc:", scdl.isValidUrl(song.url), song.url);
         try {
-            if (song.url.match(ytPattern) && song.url.match(ytPattern).length > 0) {
+            if (ytdl.validateURL(song.url)) {
                 stream = await playdl.stream(song.url, { discordPlayerCompatibility: true });
     
                 player.play(createAudioResource(stream.stream, { inputType : stream.type, inlineVolume: true }));
-            } else if (song.url.match(scPattern) && song.url.match(scPattern).length > 0) {
+            } else if (scdl.isValidUrl(song.url)) {
                 stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
     
                 player.play(createAudioResource(stream, { inlineVolume: true }));
@@ -300,7 +409,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 var sec = Math.floor((songDurantion) % 60);
                     if (sec <= 9) { sec = `0${sec}` };
                 songDurantion = `${min}:${sec}`;
-    
+
                 npMsg = await command.channel.send({
                     embeds: [
                         new EmbedBuilder()
@@ -324,7 +433,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                                     [songs[i], songs[j]] = [songs[j], songs[i]];
                                 };
                             queue.songs = songs;
-    
+
                             interaction.reply({
                                 embeds: [
                                     new EmbedBuilder()
@@ -364,7 +473,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                                 });
                             } else {
                                 queue.connection._state.subscription.player.pause();
-    
+
                                 interaction.reply({
                                     embeds: [
                                         new EmbedBuilder()
@@ -457,7 +566,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 setTimeout(async () => {
                     if (queue.status == "idle") {
                         console.log("destroy connection, inactive");
-    
+
                         await queue.connection.destroy();
                         return client.queue.delete(command.guild.id);
                     };
@@ -513,7 +622,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             });
 
         queue.connection.subscribe(player);
-        queue.connection._state.subscription.player._state.resource.volume.setVolume(queue.volume/100);
+        try { queue.connection._state.subscription.player._state.resource.volume.setVolume(queue.volume/100) } catch (err) { console.err };
         queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => { client.queue.delete(command.guild.id); });
     };
 }
