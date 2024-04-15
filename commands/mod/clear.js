@@ -48,7 +48,8 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
                     .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
-            allowedMentions: { repliedUser: false }
+            allowedMentions: { repliedUser: false },
+            ephemeral: true
         });
     });
 }

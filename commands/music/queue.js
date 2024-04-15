@@ -9,7 +9,7 @@ module.exports = {
     isExecVoice: true
 }
 module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType }, command, args, color) => {
-    const voiceChannel = command.member.voice.channel;
+    var voiceChannel = command.member.voice.channel;
         if (!voiceChannel) {
             return command.reply({
                 embeds: [
@@ -17,7 +17,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                         .setDescription("> You need to be connected to voice channel")
                         .setColor(color)
                 ],
-                allowedMentions: { repliedUser: false }
+                allowedMentions: { repliedUser: false },
+                ephemeral: true
             });
         };
         if (command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id) {
@@ -27,7 +28,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                         .setDescription("> I\'m already connected to other voice channel")
                         .setColor(color)
                 ],
-                allowedMentions: { repliedUser: false }
+                allowedMentions: { repliedUser: false },
+                ephemeral: true
             });
         };
 
@@ -40,7 +42,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                             .setDescription("> There\'s no queue")
                             .setColor(color)
                     ],
-                    allowedMentions: { repliedUser: false }
+                    allowedMentions: { repliedUser: false },
+                    ephemeral: true
                 });
             };
 
@@ -110,6 +113,30 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         collector.on("collect", interaction => {
             try {
                 if (interaction.message.id == queueMsg.id || interaction.message.interaction.id == queueMsg.id) {
+                    voiceChannel = interaction.member.voice.channel;
+                    if (!voiceChannel) {
+                        return interaction.reply({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setDescription("> You need to be connected to voice channel")
+                                    .setColor(color)
+                            ],
+                            allowedMentions: { repliedUser: false },
+                            ephemeral: true
+                        });
+                    };
+                    if (interaction.guild.members.me.voice.channel && voiceChannel.id != interaction.guild.members.me.voice.channel.id) {
+                        return interaction.reply({
+                            embeds: [
+                                new EmbedBuilder()
+                                    .setDescription("> I\'m already connected to other voice channel")
+                                    .setColor(color)
+                            ],
+                            allowedMentions: { repliedUser: false },
+                            ephemeral: true
+                        });
+                    };
+
                     if(interaction.customId == "next" && currentPage < embeds.length - 1){
                         currentPage++;
                     } else if(interaction.customId == "previous" && currentPage != 0){
@@ -137,7 +164,18 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                         fowardBtn.setDisabled(false);
                     };
 
-                    queue = client.queue.get(command.guild.id);
+                    queue = client.queue.get(interaction.guild.id);
+                        if (!queue) {
+                            return interaction.reply({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setDescription("> There\'s no queue")
+                                        .setColor(color)
+                                ],
+                                allowedMentions: { repliedUser: false },
+                                ephemeral: true
+                            });
+                        };
 
                     embeds = genQueuePage(queue);
 
@@ -190,7 +228,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
-            allowedMentions: { repliedUser: false }
+            allowedMentions: { repliedUser: false },
+            ephemeral: true
         });
     };
 }

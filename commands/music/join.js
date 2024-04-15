@@ -15,7 +15,8 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
                         .setDescription("> You need to be connected to voice channel")
                         .setColor(color)
                 ],
-                allowedMentions: { repliedUser: false }
+                allowedMentions: { repliedUser: false },
+                ephemeral: true
             });
         };
         if (command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id) {
@@ -25,7 +26,8 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
                         .setDescription("> I\'m already connected to other voice channel")
                         .setColor(color)
                 ],
-                allowedMentions: { repliedUser: false }
+                allowedMentions: { repliedUser: false },
+                ephemeral: true
             });
         };
 
@@ -54,7 +56,8 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
                     .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
-            allowedMentions: { repliedUser: false }
+            allowedMentions: { repliedUser: false },
+            ephemeral: true
         });
     };
 }

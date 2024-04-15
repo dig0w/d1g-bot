@@ -18,11 +18,6 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
     const playdl = require("play-dl");
     const ytdl = require("ytdl-core");
     const scdl = require("soundcloud-downloader").default;
-    const Spotify = require('spotifydl-core').default
-    const spdl = new Spotify({
-        clientId: process.env.spotifyID,
-        clientSecret: process.env.spotifySecret
-    });
 
     await playdl.setToken({
         spotify : {
@@ -31,9 +26,9 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             refresh_token: process.env.spotifyRefresh,
             market: 'US'
         }
-   })
+   });
 
-    const voiceChannel = command.member.voice.channel;
+    var voiceChannel = command.member.voice.channel;
       if (!voiceChannel) {
         return command.reply({
           embeds: [
@@ -41,7 +36,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
               .setDescription("> You need to be connected to voice channel")
               .setColor(color)
             ],
-          allowedMentions: { repliedUser: false }
+          allowedMentions: { repliedUser: false },
+          ephemeral: true
         });
       };
       if (command.guild.members.me.voice.channel && voiceChannel.id != command.guild.members.me.voice.channel.id) {
@@ -51,7 +47,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                   .setDescription("> I\'m already connected to other voice channel")
                   .setColor(color)
           ],
-          allowedMentions: { repliedUser: false }
+          allowedMentions: { repliedUser: false },
+          ephemeral: true
         });
       };
 
@@ -59,8 +56,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
     var url = args.splice(1, args.length).join(" ");
 
-    try{
-        const queue = client.queue.get(command.guild.id);
+    try {
+        var queue = client.queue.get(command.guild.id);
 
         const queueConstruct = {
             voiceChannel: voiceChannel,
@@ -154,7 +151,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 for (let i = 0; i < mapInfo.length; i++) {
                     const spTrack = mapInfo[i];
 
-                    const videoInfo = await playdl.search(`${spTrack.name}`, { limit: 1 });
+                    const videoInfo = await playdl.search(`${spTrack.artists.map(artist => `${artist.name}`).join(", ")} - ${spTrack.name}`, { limit: 1 });
 
                     songs.push({
                         title: videoInfo[0].title,
@@ -171,7 +168,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
             const spTrack = await playdl.spotify(url);
 
-            const videoInfo = await playdl.search(`${spTrack.name}`, { limit: 1 });
+            const videoInfo = await playdl.search(`${spTrack.artists.map(artist => `${artist.name}`).join(", ")} - ${spTrack.name}`, { limit: 1 });
 
             songs.push({
                 title: videoInfo[0].title,
@@ -333,7 +330,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     .setDescription(`Something went wrong... \n> \`${err}\``)
                     .setColor(color)
             ],
-            allowedMentions: { repliedUser: false }
+            allowedMentions: { repliedUser: false },
+            ephemeral: true
         });
     };
 
@@ -424,6 +422,43 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
                 collector.on("collect", interaction => {
                     if (interaction.message.id == npMsg.id || interaction.message.interaction.id == npMsg.id) {
+                        voiceChannel = interaction.member.voice.channel;
+                        if (!voiceChannel) {
+                            return interaction.reply({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setDescription("> You need to be connected to voice channel")
+                                        .setColor(color)
+                                ],
+                                allowedMentions: { repliedUser: false },
+                                ephemeral: true
+                            });
+                        };
+                        if (interaction.guild.members.me.voice.channel && voiceChannel.id != interaction.guild.members.me.voice.channel.id) {
+                            return interaction.reply({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setDescription("> I\'m already connected to other voice channel")
+                                        .setColor(color)
+                                ],
+                                allowedMentions: { repliedUser: false },
+                                ephemeral: true
+                            });
+                        };
+
+                        queue = client.queue.get(interaction.guild.id);
+                            if (!queue) {
+                                return interaction.reply({
+                                    embeds: [
+                                        new EmbedBuilder()
+                                            .setDescription("> There\'s no queue")
+                                            .setColor(color)
+                                    ],
+                                    allowedMentions: { repliedUser: false },
+                                    ephemeral: true
+                                });
+                            };
+
                         if (interaction.customId == "shuffle") {
                             const startIndex = queue.songs.findIndex(song => song == queue.npSong) + 1;
 
