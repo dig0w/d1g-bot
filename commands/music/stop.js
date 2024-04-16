@@ -45,8 +45,14 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
                 });
             };
 
-        queue.stop = true;
-        queue.connection._state.subscription.player.stop();
+        // TRY THIS PLS!!!!!!!!!!!!
+        if (queue.status == "idle") {
+            await queue.connection.destroy();
+            client.queue.delete(command.guild.id);
+        } else {
+            queue.stop = true;
+            queue.connection._state.subscription.player.stop();
+        };
 
         command.reply({
             embeds: [

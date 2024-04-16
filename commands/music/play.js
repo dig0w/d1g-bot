@@ -599,13 +599,13 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 };
 
                 setTimeout(async () => {
-                    if (queue.status == "idle") {
+                    if (queue.status == "idle" && queue.npSong == song) {
                         console.log("destroy connection, inactive");
 
                         await queue.connection.destroy();
                         return client.queue.delete(command.guild.id);
                     };
-                }, 1000*60*.5);
+                }, 1000*60*5);
             });
             player.on("error", async err => {
                 console.log("error");
