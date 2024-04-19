@@ -446,7 +446,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                             });
                         };
 
-                        queue = client.queue.get(interaction.guild.id);
+                        var queue = client.queue.get(interaction.guild.id);
                             if (!queue) {
                                 return interaction.reply({
                                     embeds: [
