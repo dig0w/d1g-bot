@@ -658,6 +658,12 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
         queue.connection.subscribe(player);
         try { queue.connection._state.subscription.player._state.resource.volume.setVolume(queue.volume/100) } catch (err) { console.err };
-        queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => { client.queue.delete(command.guild.id); });
+        queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
+            if (npMsg && npMsg.deletable) {
+                command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
+            };
+            
+            client.queue.delete(command.guild.id);
+        });
     };
 }
