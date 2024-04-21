@@ -74,7 +74,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         var playlistInfo;
 
         if (url.startsWith("https") && playdl.yt_validate(url) === "playlist" && !ytdl.validateURL(url)) {
-            const plInfo = await playdl.playlist_info(url, { incomplete : true });
+            const plInfo = await playdl.playlist_info(url, { incomplete: true });
             playlistInfo = {
                 title: plInfo.title,
                 url: plInfo.url,
@@ -91,9 +91,18 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     duration: videoInfo.durationInSec,
                     author: command.member
                 });
-            };
 
-            queueSongs(songs);
+                if (i == 0) {
+                    queueSongs(songs);
+                } else if (queue) {
+                    queue.songs.push({
+                        title: videoInfo.title,
+                        url: videoInfo.url,
+                        duration: videoInfo.durationInSec,
+                        author: command.member
+                    });
+                };
+            };
         } else if (ytdl.validateURL(url)) {
             const videoInfo = await ytdl.getBasicInfo(ytdl.getURLVideoID(url.split("&")[0]));
 
@@ -123,9 +132,18 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     duration: trackInfo.duration/1000,
                     author: command.member
                 });
-            };
 
-            queueSongs(songs);
+                if (i == 0) {
+                    queueSongs(songs);
+                } else if (queue) {
+                    queue.songs.push({
+                        title: trackInfo.title,
+                        url: trackInfo.permalink_url,
+                        duration: trackInfo.duration/1000,
+                        author: command.member
+                    });
+                };
+            };
         } else if (scdl.isValidUrl(url)) {
             const trackInfo = await scdl.getInfo(url, process.env.soundcloudID);
             songs.push({
@@ -159,9 +177,18 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                         duration: videoInfo[0].durationInSec,
                         author: command.member
                     });
+
+                    if (i == 0) {
+                        queueSongs(songs);
+                    } else if (queue) {
+                        queue.songs.push({
+                            title: videoInfo[0].title,
+                            url: videoInfo[0].url,
+                            duration: videoInfo[0].durationInSec,
+                            author: command.member
+                        });
+                    };
                 };
-                
-                queueSongs(songs);
             });
         } else if (url.startsWith("https") && playdl.sp_validate(url) === "track") {
             if (playdl.is_expired()) { await playdl.refreshToken() };
@@ -202,7 +229,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
     
                 if (songs.length > 1 && playlistInfo) {
                     try {
-                        await command.reply({ embeds: [
+                        await command.reply({
+                            embeds: [
                                 new EmbedBuilder()
                                     .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
                                     .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
@@ -211,7 +239,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                             allowedMentions: { repliedUser: false }
                         });
                     } catch (err) {
-                        await command.editReply({ embeds: [
+                        await command.editReply({
+                            embeds: [
                                 new EmbedBuilder()
                                     .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
                                     .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
@@ -231,7 +260,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                         songDurantion = `${min}:${sec}`;
                 
                         try {
-                            await command.reply({ embeds: [
+                            await command.reply({
+                                embeds: [
                                     new EmbedBuilder()
                                         .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
                                         .setFooter({ text: `By: ${song.author.user.tag}` })
@@ -240,7 +270,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                                 allowedMentions: { repliedUser: false }
                             });
                         } catch (err) {
-                            await command.editReply({ embeds: [
+                            await command.editReply({
+                                embeds: [
                                     new EmbedBuilder()
                                         .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
                                         .setFooter({ text: `By: ${song.author.user.tag}` })
@@ -255,9 +286,10 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 queueConstruct.songs = songs;
                 client.queue.set(command.guild.id, queueConstruct);
     
-                if (songs.length > 1 && playlistInfo) {
+                if (playlistInfo) {
                     try {
-                        await command.reply({ embeds: [
+                        await command.reply({
+                            embeds: [
                                 new EmbedBuilder()
                                     .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
                                     .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
@@ -266,7 +298,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                             allowedMentions: { repliedUser: false }
                         });
                     } catch (err) {
-                        await command.editReply({ embeds: [
+                        await command.editReply({
+                            embeds: [
                                 new EmbedBuilder()
                                     .setDescription(`↪️ Queued: [${playlistInfo.title}](${playlistInfo.url}) with **\`${playlistInfo.tracks}\`** songs`)
                                     .setFooter({ text: `By: ${playlistInfo.author.user.tag}` })
@@ -286,7 +319,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                         songDurantion = `${min}:${sec}`;
                 
                         try {
-                            await command.reply({ embeds: [
+                            await command.reply({
+                                embeds: [
                                     new EmbedBuilder()
                                         .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
                                         .setFooter({ text: `By: ${song.author.user.tag}` })
@@ -295,7 +329,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                                 allowedMentions: { repliedUser: false }
                             });
                         } catch (err) {
-                            await command.editReply({ embeds: [
+                            await command.editReply({
+                                embeds: [
                                     new EmbedBuilder()
                                         .setDescription(`↪️ Queued: [${song.title}](${song.url}) **\`${songDurantion}\`**`)
                                         .setFooter({ text: `By: ${song.author.user.tag}` })
@@ -317,22 +352,56 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             };
         };
     } catch (err) {
+        if (err.statusCode == 410) {
+            try {
+                await command.reply({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setDescription(`> Video is age restricted`)
+                            .setColor(color)
+                    ],
+                    allowedMentions: { repliedUser: false },
+                    ephemeral: true
+                });
+            } catch (err) {
+                await command.editReply({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setDescription(`> Video is age restricted`)
+                            .setColor(color)
+                    ],
+                    allowedMentions: { repliedUser: false },
+                    ephemeral: true
+                });
+            };
+            return;
+        };
+
         console.log(err);
 
-        client.queue.delete(command.guild.id);
+        try {
+            await command.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setDescription(`Something went wrong... \n> \`${err}\``)
+                        .setColor(color)
+                ],
+                allowedMentions: { repliedUser: false },
+                ephemeral: true
+            });
+        } catch (err) {
+            await command.editReply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setDescription(`Something went wrong... \n> \`${err}\``)
+                        .setColor(color)
+                ],
+                allowedMentions: { repliedUser: false },
+                ephemeral: true
+            });
+        };
 
-        const connection = getVoiceConnection(command.guild.id);
-        if (connection) { connection.destroy() };
-
-        return await command.reply({
-            embeds: [
-                new EmbedBuilder()
-                    .setDescription(`Something went wrong... \n> \`${err}\``)
-                    .setColor(color)
-            ],
-            allowedMentions: { repliedUser: false },
-            ephemeral: true
-        });
+        return;
     };
 
     async function play(song) {
@@ -357,13 +426,51 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 player.play(createAudioResource(stream, { inlineVolume: true }));
             };
         } catch (err) {
-            console.log(err);
+            if (err.message.includes("Sign in to confirm your age")) {
+                await command.channel.send({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setDescription(`> Video is age restricted`)
+                            .setColor(color)
+                    ],
+                    allowedMentions: { repliedUser: false },
+                    ephemeral: true
+                });
 
-            return await command.channel.send({ embeds: [
-                new EmbedBuilder()
-                    .setDescription(`Something went wrong... \n> \`${err}\``)
-                    .setColor(color)
-            ]});
+                console.log("idle");
+                queue.status = "idle";
+
+                for (let i = 0; i < queue.songs.length; i++) {
+                    if (queue.songs.length > i+1 && queue.songs[i] == song) {
+                        console.log("else", i+1, queue.songs.length);
+                        return play(queue.songs[i+1]);
+                    };
+                };
+                
+                return;
+            } else {
+                console.log(err);
+
+                await command.channel.send({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setDescription(`Something went wrong... \n> \`${err}\``)
+                            .setColor(color)
+                    ]
+                });
+
+                console.log("idle");
+                queue.status = "idle";
+
+                for (let i = 0; i < queue.songs.length; i++) {
+                    if (queue.songs.length > i+1 && queue.songs[i] == song) {
+                        console.log("else", i+1, queue.songs.length);
+                        return play(queue.songs[i+1]);
+                    };
+                };
+
+                return;
+            };
         };
 
         var npMsg;
@@ -649,11 +756,13 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     };
                 };
 
-                return await command.channel.send({ embeds: [
-                    new EmbedBuilder()
-                        .setDescription(`Something went wrong... \n> \`${err}\``)
-                        .setColor(color)
-                ]});
+                return await command.channel.send({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setDescription(`Something went wrong... \n> \`${err}\``)
+                            .setColor(color)
+                    ]
+                });
             });
 
         queue.connection.subscribe(player);
