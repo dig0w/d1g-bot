@@ -390,15 +390,27 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 ephemeral: true
             });
         } catch (err) {
-            await command.editReply({
-                embeds: [
-                    new EmbedBuilder()
-                        .setDescription(`Something went wrong... \n> \`${err}\``)
-                        .setColor(color)
-                ],
-                allowedMentions: { repliedUser: false },
-                ephemeral: true
-            });
+            try {
+                await command.editReply({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setDescription(`Something went wrong... \n> \`${err}\``)
+                            .setColor(color)
+                    ],
+                    allowedMentions: { repliedUser: false },
+                    ephemeral: true
+                });
+            } catch (err) {
+                await command.channel.send({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setDescription(`Something went wrong... \n> \`${err}\``)
+                            .setColor(color)
+                    ],
+                    allowedMentions: { repliedUser: false },
+                    ephemeral: true
+                });
+            };
         };
 
         return;
@@ -768,10 +780,12 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         queue.connection.subscribe(player);
         try { queue.connection._state.subscription.player._state.resource.volume.setVolume(queue.volume/100) } catch (err) { console.err };
         queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
+            console.log("disconnected");
+
             if (npMsg && npMsg.deletable) {
                 command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
             };
-            
+
             client.queue.delete(command.guild.id);
         });
     };
