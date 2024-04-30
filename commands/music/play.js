@@ -786,7 +786,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
             };
 
-            client.queue.delete(command.guild.id);
+            await queue.connection.destroy();
+            return client.queue.delete(command.guild.id);
         });
     };
 }
