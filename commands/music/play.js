@@ -718,7 +718,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 };
 
                 setTimeout(async () => {
-                    if (queue.status == "idle" && queue.npSong == song) {
+                    if (client.queue.get(command.guild.id) && queue.status == "idle" && queue.npSong == song) {
                         console.log("destroy connection, inactive");
 
                         await queue.connection.destroy();
