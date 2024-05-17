@@ -1,3 +1,5 @@
+const { error } = require("console");
+
 module.exports = {
     name: "play",
     description: "Play a song in the voice channel",
@@ -347,7 +349,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     guildId: command.guild.id,
                     adapterCreator: command.guild.voiceAdapterCreator
                 });
-        
+
                 await play(queueConstruct.songs[0]);
             };
         };
@@ -492,7 +494,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 queue.npSong = song;
 
                 if (npMsg && npMsg.deletable) {
-                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
+                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("playing delete msg", error));
                 };
 
                 const shuffleBtn = new ButtonBuilder()
@@ -681,7 +683,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 queue.status = "idle";
 
                 if(npMsg && npMsg.deletable) {
-                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
+                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("idle delete msg", error));
                 };
 
                 if (queue.stop) {
@@ -732,7 +734,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 queue.status = "idle";
 
                 if (npMsg && npMsg.deletable) {
-                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
+                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("error idle delete msg", error));
                 };
 
                 if (queue.stop) {
@@ -778,15 +780,20 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             });
 
         queue.connection.subscribe(player);
-        try { queue.connection._state.subscription.player._state.resource.volume.setVolume(queue.volume/100) } catch (err) { console.err };
+        try { queue.connection._state.subscription.player._state.resource.volume.setVolume(queue.volume/100) } catch (error) { console.log("set volume", error) };
         queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
             console.log("disconnected");
 
             if (npMsg && npMsg.deletable) {
-                command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch(console.error);
+                command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("disconnect delete msg", error));
             };
 
-            await queue.connection.destroy();
+            try {
+                await queue.connection.destroy()
+            } catch (error) {
+                console.log("disconnect destroy", error);
+            };
+
             return client.queue.delete(command.guild.id);
         });
     };
