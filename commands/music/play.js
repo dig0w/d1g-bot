@@ -1,5 +1,3 @@
-const { error } = require("console");
-
 module.exports = {
     name: "play",
     description: "Play a song in the voice channel",
@@ -494,7 +492,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 queue.npSong = song;
 
                 if (npMsg && npMsg.deletable) {
-                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("playing delete msg", error));
+                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("playing delete msg, Error:", error.message));
                 };
 
                 const shuffleBtn = new ButtonBuilder()
@@ -683,7 +681,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 queue.status = "idle";
 
                 if(npMsg && npMsg.deletable) {
-                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("idle delete msg", error));
+                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("idle delete msg, Error:", error.message));
                 };
 
                 if (queue.stop) {
@@ -734,7 +732,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 queue.status = "idle";
 
                 if (npMsg && npMsg.deletable) {
-                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("error idle delete msg", error));
+                    command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("error idle delete msg, Error:", error.message));
                 };
 
                 if (queue.stop) {
@@ -785,13 +783,13 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             console.log("disconnected");
 
             if (npMsg && npMsg.deletable) {
-                command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("disconnect delete msg", error));
+                command.channel.messages.fetch(npMsg.id).then(msg => msg.delete()).catch((error) => console.log("disconnect delete msg, Error:", error.message));
             };
 
             try {
                 await queue.connection.destroy()
             } catch (error) {
-                console.log("disconnect destroy", error);
+                console.log("disconnect destroy, Error:", error.message);
             };
 
             return client.queue.delete(command.guild.id);
