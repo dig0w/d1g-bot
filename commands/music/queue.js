@@ -59,6 +59,10 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         else if (queue.loop == 1) { loop = "Queue" }
         else if (queue.loop == 2) { loop = "Song" };
 
+        var autoplay;
+        if (queue.autoplay == false) { autoplay = "Disabled" }
+        else if (queue.autoplay == true) { autoplay = "Enabled" };
+
         var currentPage = 0;
         var embeds = genQueuePage(queue);
 
@@ -101,7 +105,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${npSong.title}](${npSong.url}) **\`${songDurantion}\`**`)
-                    .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}` })
+                    .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop} | Autoplay: ${autoplay}` })
                     .setColor(color)
             ],
             allowedMentions: { repliedUser: false },
@@ -190,11 +194,14 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     else if (queue.loop == 1) { loop = "Queue" }
                     else if (queue.loop == 2) { loop = "Song" };
 
+                    if (queue.autoplay == false) { autoplay = "Disabled" }
+                    else if (queue.autoplay == true) { autoplay = "Enabled" };
+
                     interaction.update({
                         embeds: [
                             new EmbedBuilder()
                                 .setDescription(`**↪️ Queue:**\n\n${embeds[currentPage]}\n\n▶️ Now Playing: [${npSong.title}](${npSong.url}) **\`${songDurantion}\`**`)
-                                .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop}` })
+                                .setFooter({ text: `Page: ${currentPage+1}/${embeds.length} | Volume: ${queue.volume}% | Loop: ${loop} | Autoplay: ${autoplay}` })
                                 .setColor(color)
                         ],
                         allowedMentions: { repliedUser: false },

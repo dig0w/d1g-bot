@@ -68,7 +68,8 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             npSong: 0,
             loop: 0,
             skipto: 0,
-            stop: false
+            stop: false,
+            autoplay: false
         };
         var songs = [];
         var playlistInfo;
@@ -207,6 +208,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             queueSongs(songs);
         } else {
             const videoInfo = await playdl.search(url, { limit: 1});
+
             songs.push({
                 title: videoInfo[0].title,
                 url: videoInfo[0].url,
@@ -712,6 +714,30 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     for (let i = 0; i < queue.songs.length; i++) {
                         if (queue.songs.length > i+1 && queue.songs[i] == song) {
                             console.log("else", i+1, queue.songs.length);
+                            return play(queue.songs[i+1]);
+                        };
+                    };
+                };
+
+                if (queue.autoplay && ytdl.validateURL(song.url)) {
+                    const songs = [];
+
+                    const videoInfo = await ytdl.getBasicInfo(ytdl.getURLVideoID(song.url));
+
+                    songs.push({
+                        title: videoInfo.related_videos[0].title,
+                        url: `https://www.youtube.com/watch?v=${videoInfo.related_videos[0].id}`,
+                        duration: videoInfo.related_videos[0].length_seconds,
+                        author: command.guild.members.me
+                    });
+
+                    queue.songs = [...queue.songs, ...songs];
+
+                    console.log(queue.songs);
+
+                    for (let i = 0; i < queue.songs.length; i++) {
+                        if (queue.songs.length > i+1 && queue.songs[i] == song) {
+                            console.log("autoplay", i+1, queue.songs.length);
                             return play(queue.songs[i+1]);
                         };
                     };
