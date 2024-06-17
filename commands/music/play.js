@@ -724,21 +724,21 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
                     const videoInfo = await ytdl.getBasicInfo(ytdl.getURLVideoID(song.url));
 
-                    songs.push({
-                        title: videoInfo.related_videos[0].title,
-                        url: `https://www.youtube.com/watch?v=${videoInfo.related_videos[0].id}`,
-                        duration: videoInfo.related_videos[0].length_seconds,
-                        author: command.guild.members.me
-                    });
+                    if (videoInfo.related_videos && videoInfo.related_videos[0]) {
+                        songs.push({
+                            title: videoInfo.related_videos[0].title,
+                            url: `https://www.youtube.com/watch?v=${videoInfo.related_videos[0].id}`,
+                            duration: videoInfo.related_videos[0].length_seconds,
+                            author: command.guild.members.me
+                        });
 
-                    queue.songs = [...queue.songs, ...songs];
+                        queue.songs = [...queue.songs, ...songs];
 
-                    console.log(queue.songs);
-
-                    for (let i = 0; i < queue.songs.length; i++) {
-                        if (queue.songs.length > i+1 && queue.songs[i] == song) {
-                            console.log("autoplay", i+1, queue.songs.length);
-                            return play(queue.songs[i+1]);
+                        for (let i = 0; i < queue.songs.length; i++) {
+                            if (queue.songs.length > i+1 && queue.songs[i] == song) {
+                                console.log("autoplay", i+1, queue.songs.length);
+                                return play(queue.songs[i+1]);
+                            };
                         };
                     };
                 };
