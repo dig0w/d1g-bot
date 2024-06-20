@@ -434,8 +434,6 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             if (ytdl.validateURL(song.url)) {
                 stream = await ytstream.stream(song.url, { quality: 'high', type: 'audio', highWaterMark: 1048576 * 32, download: true });
 
-                console.log(stream);
-
                 player.play(createAudioResource(stream.stream, { inputType : stream.type, inlineVolume: true }));
             } else if (scdl.isValidUrl(song.url)) {
                 stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
