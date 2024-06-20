@@ -543,7 +543,9 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 const collector = npMsg.createMessageComponentCollector({ componentType: ComponentType.Button });
 
                 collector.on("collect", interaction => {
-                    if (interaction.message.id == npMsg.id || interaction.message.interaction.id == npMsg.id) {
+                    console.log(interaction.message, interaction.message.id == npMsg.id);
+
+                    if (interaction.message.id == npMsg.id) {
                         voiceChannel = interaction.member.voice.channel;
                         if (!voiceChannel) {
                             return interaction.reply({
