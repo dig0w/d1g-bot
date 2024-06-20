@@ -14,9 +14,10 @@ module.exports = {
     isExecVoice: true
 }
 module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType }, command, args, color) => {
-    const { joinVoiceChannel, getVoiceConnection, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require("@discordjs/voice");
+    const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require("@discordjs/voice");
     const playdl = require("play-dl");
     const ytdl = require("ytdl-core");
+    const ytstream = require("yt-stream");
     const scdl = require("soundcloud-downloader").default;
 
     await playdl.setToken({
@@ -431,12 +432,14 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         console.log("url match: yt:", ytdl.validateURL(song.url), "sc:", scdl.isValidUrl(song.url), song.url);
         try {
             if (ytdl.validateURL(song.url)) {
-                stream = await playdl.stream(song.url, { discordPlayerCompatibility: true });
-    
+                stream = await ytstream.stream(song.url, { quality: 'high', type: 'audio', highWaterMark: 1048576 * 32, download: true });
+
+                console.log(stream);
+
                 player.play(createAudioResource(stream.stream, { inputType : stream.type, inlineVolume: true }));
             } else if (scdl.isValidUrl(song.url)) {
                 stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
-    
+
                 player.play(createAudioResource(stream, { inlineVolume: true }));
             };
         } catch (err) {
@@ -805,6 +808,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
         queue.connection.subscribe(player);
         try { queue.connection._state.subscription.player._state.resource.volume.setVolume(queue.volume/100) } catch (error) { console.log("set volume", error) };
+
         queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
             console.log("disconnected");
 
