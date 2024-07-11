@@ -437,8 +437,6 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
             } else if (scdl.isValidUrl(song.url)) {
                 stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
 
-                console.log(stream);
-
                 player.play(createAudioResource(stream, { inlineVolume: true }));
             };
         } catch (err) {

@@ -19,8 +19,5 @@
     "opusscript": "^0.0.8",
     "soundcloud-downloader": "^1.0.0",
     "ytdl-core": "^4.11.5"
-  },
-  "devDependencies": {
-    "node": "^16.13.0"
   }
 }
