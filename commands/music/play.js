@@ -15,9 +15,8 @@ module.exports = {
 }
 module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType }, command, args, color) => {
     const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } = require("@discordjs/voice");
-    const playdl = require("play-dl");
+    const playdl = require("@iamtraction/play-dl");
     const ytdl = require("ytdl-core");
-    const ytstream = require("yt-stream");
     const scdl = require("soundcloud-downloader").default;
 
     await playdl.setToken({
@@ -432,11 +431,13 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
         console.log("url match: yt:", ytdl.validateURL(song.url), "sc:", scdl.isValidUrl(song.url), song.url);
         try {
             if (ytdl.validateURL(song.url)) {
-                stream = await ytstream.stream(song.url, { quality: 'high', type: 'audio', highWaterMark: 1048576 * 32, download: true });
+                stream = await playdl.stream(song.url, { discordPlayerCompatibility: true });
 
                 player.play(createAudioResource(stream.stream, { inputType : stream.type, inlineVolume: true }));
             } else if (scdl.isValidUrl(song.url)) {
                 stream = await scdl.downloadFormat(song.url, scdl.FORMATS.OPUS, process.env.soundcloudID);
+
+                console.log(stream);
 
                 player.play(createAudioResource(stream, { inlineVolume: true }));
             };
@@ -543,8 +544,6 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                 const collector = npMsg.createMessageComponentCollector({ componentType: ComponentType.Button });
 
                 collector.on("collect", interaction => {
-                    console.log(interaction.message, interaction.message.id == npMsg.id);
-
                     if (interaction.message.id == npMsg.id) {
                         voiceChannel = interaction.member.voice.channel;
                         if (!voiceChannel) {
@@ -805,6 +804,12 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
                     ]
                 });
             });
+            player.on(AudioPlayerStatus.Buffering, () => {
+                console.log("buffering");
+            });
+            player.on("buffering", () => {
+                console.log("buffering 2");
+            });
 
         queue.connection.subscribe(player);
         try { queue.connection._state.subscription.player._state.resource.volume.setVolume(queue.volume/100) } catch (error) { console.log("set volume", error) };
@@ -824,5 +829,7 @@ module.exports.run = async (client, { EmbedBuilder, ActionRowBuilder, ButtonBuil
 
             return client.queue.delete(command.guild.id);
         });
+
+        // setTimeout(() => console.log(player._state.resource), 1000);
     };
 }
