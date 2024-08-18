@@ -1,6 +1,6 @@
 {
   "name": "d1g-bot",
-  "version": "0.0.1",
+  "version": "1.8.8",
   "description": "A Music Discord bot, that supports Youtube, Spotify and Soundcloud",
   "main": "index.js",
   "author": "dig0w",

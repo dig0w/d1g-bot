@@ -1,6 +1,6 @@
 module.exports = {
     name: "autoplay",
-    description: "Join user voice channel",
+    description: "Autoplays based on the recomended",
     aliases: ["ap"],
     options: [],
     permission: undefined,
