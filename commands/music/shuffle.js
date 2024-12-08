@@ -54,7 +54,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
             };
         queue.songs = songs;
 
-        command.reply({
+        return command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`🔀 ${command.member} shufffled the queue`)

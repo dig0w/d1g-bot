@@ -70,7 +70,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
             desc = `🔁 ${command.member} **disabled** the loop`;
         } else { return };
 
-        command.reply({
+        return command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(desc)

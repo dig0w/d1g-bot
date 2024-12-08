@@ -47,7 +47,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
 
         queue.connection._state.subscription.player.unpause();
 
-        command.reply({
+        return command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`▶️ ${command.member} resumed the song`)

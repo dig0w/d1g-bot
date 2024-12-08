@@ -57,7 +57,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
         const song = queue.songs[parseInt(remove) - 1];
         queue.songs.splice(parseInt(remove) - 1, 1);
 
-        command.reply({
+        return command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`❌ ${command.member} removed [${song.title}](${song.url})`)

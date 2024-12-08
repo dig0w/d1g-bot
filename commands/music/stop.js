@@ -54,7 +54,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
             queue.connection._state.subscription.player.stop();
         };
 
-        command.reply({
+        return command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`⏹️ ${command.member} stopped the queue`)

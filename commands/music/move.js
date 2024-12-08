@@ -64,7 +64,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
         queue.songs.splice(parseInt(moveSong) - 1, 1);
         queue.songs.splice(parseInt(newPos) - 1, 0, song);
 
-        command.reply({
+        return command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`↕️ ${command.member} moved [${song.title}](${song.url}) to position **\`${parseInt(newPos)}\`**`)

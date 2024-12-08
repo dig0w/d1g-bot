@@ -60,7 +60,7 @@ module.exports.run = async (client, { EmbedBuilder }, command, args, color) => {
         queue.connection._state.subscription.player._state.resource.volume.setVolume(volume/100);
         queue.volume = volume;
 
-        command.reply({
+        return command.reply({
             embeds: [
                 new EmbedBuilder()
                     .setDescription(`🔉 ${command.member} changed the volume to: **\`${volume}%\`**`)
